@@ -11,7 +11,7 @@ class DBProcessor(object):
         pass
 
     def process(self, payload):
-        kind = os.environ.get('DB_PROCESSOR_KIND', 'Required parameter is missed')
+        kind = config.DB_PROCESSOR_KIND
         entity_key = self.client.key(kind, str(uuid.uuid4()))
         entity = self.client.get(entity_key)
 
@@ -26,7 +26,7 @@ class DBProcessor(object):
         if 'status' in payload and 'source' in payload and 'repoSource' in payload['source']:
             # Set repo and branch names | repoName = {git_source}_{organization}_{project_id}
             repo_name = payload['source']['repoSource'].get('repoName', str(uuid.uuid4()))
-            branch = payload['source']['repoSource'].get('branchName','')
+            branch = payload['source']['repoSource'].get('branchName', '')
 
             # Set status to either pending, failing or passing
             status = 'pending'
@@ -40,7 +40,8 @@ class DBProcessor(object):
             entity.update({
                 'git_source': repo_name.split('_')[0],
                 'organization': repo_name.split('_')[1],
-                'project_id': repo_name.split('_')[2],
+                'repo_name': repo_name.split('_')[2],
+                'project_id': payload['projectId'],
                 'branch': branch,
                 'status': status,
                 'updated': datetime.datetime.utcnow()
