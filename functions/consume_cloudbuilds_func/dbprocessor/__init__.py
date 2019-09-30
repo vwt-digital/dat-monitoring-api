@@ -12,7 +12,8 @@ class DBProcessor(object):
 
     def process(self, payload):
         kind = config.DB_PROCESSOR_KIND
-        entity_key = self.client.key(kind, str(uuid.uuid4()))
+        key = payload['source']['repoSource'].get('repoName', str(uuid.uuid4()))
+        entity_key = self.client.key(kind, key)
         entity = self.client.get(entity_key)
 
         if entity is None:
