@@ -11,9 +11,17 @@ class DBProcessor(object):
         pass
 
     def process(self, payload):
-        if 'status' in payload and 'source' in payload and 'repoSource' in payload['source']:
+        if 'status' in payload and \
+            'source' in payload and \
+            'repoSource' in payload['source'] and \
+            'repoName' in payload['source']['repoSource'] and \
+            'branchName' in payload['source']['repoSource']:
+
+            repo_name = payload['source']['repoSource'].get('repoName')
+            branch = payload['source']['repoSource'].get('branchName')
             kind = config.DB_PROCESSOR_KIND
-            key = payload['source']['repoSource'].get('repoName', str(uuid.uuid4()))
+
+            key = '{}_{}'.format(repo_name, branch)
             entity_key = self.client.key(kind, key)
             entity = self.client.get(entity_key)
 
@@ -26,8 +34,8 @@ class DBProcessor(object):
     @staticmethod
     def populate_from_payload(entity, payload):
         # Set repo and branch names | repoName = {git_source}_{organization}_{project_id}
-        repo_name = payload['source']['repoSource'].get('repoName', str(uuid.uuid4()))
-        branch = payload['source']['repoSource'].get('branchName', '')
+        repo_name = payload['source']['repoSource'].get('repoName')
+        branch = payload['source']['repoSource'].get('branchName')
 
         # Set status to either pending, failing or passing
         status = 'pending'
