@@ -1,0 +1,144 @@
+---
+openapi: 3.0.2
+info:
+  title: Monitoring
+  version: 1.0.0
+  description: Endpoint to retreive all DAT Monitoring metrics
+  contact:
+    name: VolkerWessels Telecom - Digital Ambition Team
+    url: 'https://vwt-digital.github.io/'
+    email: opensource@vwt.digital
+  license:
+    name: GNU GPLv3
+    url: 'https://www.gnu.org/licenses/gpl.txt'
+servers:
+- url: 'https://PROJECT_ID.appspot.com/'
+  description: ""
+paths:
+  /build-statuses:
+    get:
+      responses:
+        200:
+          $ref: '#/components/responses/BuildStatuses'
+        204:
+          description: No content
+      summary: Get all build statuses
+      description: Get a list of all build statuses
+      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
+      security:
+        - OAuth2AzureAD: [monitoringapi]
+  /build-statuses/branch/{branch}:
+    get:
+      responses:
+        200:
+          $ref: '#/components/responses/BuildStatuses'
+        204:
+          description: No content
+        404:
+          description: Branch not of correct type
+      parameters:
+        - name: branch
+          in: path
+          description: A unique branch identifier
+          required: True
+          schema:
+            type: string
+            enum: [master, develop]
+      summary: Get all branch build statuses
+      description: Get a list of all build statuses from a specific branch
+      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
+      security:
+        - OAuth2AzureAD: [monitoringapi]
+  /build-statuses/project/{project_id}:
+    get:
+      responses:
+        200:
+          $ref: '#/components/responses/BuildStatuses'
+        204:
+          description: No content
+        404:
+          description: Branch not of correct type
+      parameters:
+        - name: project_id
+          in: path
+          description: A unique project identifier
+          required: True
+          schema:
+            type: string
+        - in: query
+          name: branch
+          schema:
+            type: string
+            enum: [master, develop]
+          description: A specific branch
+      summary: Get all project build statuses
+      description: Get a list of all build statuses from a specific project
+      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
+      security:
+        - OAuth2AzureAD: [monitoringapi]
+components:
+  schemas:
+    BuildStatus:
+      required:
+      - branch
+      - git_source
+      - organization
+      - project_id
+      - repo_name
+      - status
+      - updated
+      type: object
+      properties:
+        branch:
+          type: string
+        git_source:
+          type: string
+        organization:
+          type: string
+        project_id:
+          type: string
+        repo_name:
+          type: string
+        status:
+          enum:
+          - pending
+          - failing
+          - passing
+          type: string
+        updated:
+          format: date-time
+          type: string
+      example:
+        branch: develop
+        git_source: github
+        organization: vwt-digital
+        project_id: random-project-id
+        repo_name: random-repo-name
+        status: passing
+        updated: 2019-09-01T12:00:00+02:00
+  responses:
+    BuildStatuses:
+      description: 'Scheme with multiple build statuses'
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/BuildStatus'
+    BuildStatus:
+      description: 'Scheme with a build status'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BuildStatus'
+  securitySchemes:
+    OAuth2AzureAD:
+      flows:
+        implicit:
+          authorizationUrl: 'https://azuread.url'
+          refreshUrl: 'https://azuread.url'
+          scopes:
+            monitoringapi: Grants read access
+      type: oauth2
+      x-tokenInfoFunc: openapi_server.controllers.security_controller_.info_from_OAuth2AzureAD
+      x-scopeValidateFunc: connexion.decorators.security.validate_scope
