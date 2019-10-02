@@ -1,0 +1,177 @@
+openapi: 3.0.2
+info:
+  contact:
+    email: opensource@vwt.digital
+    name: VolkerWessels Telecom - Digital Ambition Team
+    url: https://vwt-digital.github.io/
+  description: Endpoint to retreive all DAT Monitoring metrics
+  license:
+    name: GNU GPLv3
+    url: https://www.gnu.org/licenses/gpl.txt
+  title: Monitoring
+  version: 1.0.0
+servers:
+- url: https://PROJECT_ID.appspot.com/
+paths:
+  /build-statuses:
+    get:
+      description: Get a list of all build statuses
+      operationId: build_statuses_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BuildStatus'
+                type: array
+          description: Scheme with multiple build statuses
+        204:
+          description: No content
+      security:
+      - OAuth2AzureAD:
+        - monitoringapi
+      summary: Get all build statuses
+      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
+  /build-statuses/branch/{branch}:
+    get:
+      description: Get a list of all build statuses from a specific branch
+      operationId: build_statuses_branch_branch_get
+      parameters:
+      - description: A unique branch identifier
+        explode: false
+        in: path
+        name: branch
+        required: true
+        schema:
+          enum:
+          - master
+          - develop
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BuildStatus'
+                type: array
+          description: Scheme with multiple build statuses
+        204:
+          description: No content
+        404:
+          description: Branch not of correct type
+      security:
+      - OAuth2AzureAD:
+        - monitoringapi
+      summary: Get all branch build statuses
+      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
+  /build-statuses/project/{project_id}:
+    get:
+      description: Get a list of all build statuses from a specific project
+      operationId: build_statuses_project_project_id_get
+      parameters:
+      - description: A unique project identifier
+        explode: false
+        in: path
+        name: project_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: A specific branch
+        explode: true
+        in: query
+        name: branch
+        required: false
+        schema:
+          enum:
+          - master
+          - develop
+          type: string
+        style: form
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BuildStatus'
+                type: array
+          description: Scheme with multiple build statuses
+        204:
+          description: No content
+        404:
+          description: Branch not of correct type
+      security:
+      - OAuth2AzureAD:
+        - monitoringapi
+      summary: Get all project build statuses
+      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
+components:
+  responses:
+    BuildStatuses:
+      content:
+        application/json:
+          schema:
+            items:
+              $ref: '#/components/schemas/BuildStatus'
+            type: array
+      description: Scheme with multiple build statuses
+    BuildStatus:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BuildStatus'
+      description: Scheme with a build status
+  schemas:
+    BuildStatus:
+      example:
+        branch: develop
+        git_source: github
+        organization: vwt-digital
+        project_id: random-project-id
+        repo_name: random-repo-name
+        status: passing
+        updated: 2019-09-01T12:00:00+02:00
+      properties:
+        branch:
+          type: string
+        git_source:
+          type: string
+        organization:
+          type: string
+        project_id:
+          type: string
+        repo_name:
+          type: string
+        status:
+          enum:
+          - pending
+          - failing
+          - passing
+          type: string
+        updated:
+          format: date-time
+          type: string
+      required:
+      - branch
+      - git_source
+      - organization
+      - project_id
+      - repo_name
+      - status
+      - updated
+      type: object
+  securitySchemes:
+    OAuth2AzureAD:
+      flows:
+        implicit:
+          authorizationUrl: https://azuread.url
+          refreshUrl: https://azuread.url
+          scopes:
+            monitoringapi: Grants read access
+      type: oauth2
+      x-tokenInfoFunc: openapi_server.controllers.security_controller_.info_from_OAuth2AzureAD
+      x-scopeValidateFunc: connexion.decorators.security.validate_scope

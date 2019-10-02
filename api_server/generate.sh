@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli generate \
+--skip-overwrite \
+-i /local/endpoint_api.yaml \
+-g python-flask \
+-o /local
