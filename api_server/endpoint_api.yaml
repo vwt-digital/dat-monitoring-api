@@ -14,6 +14,8 @@ info:
 servers:
 - url: 'https://PROJECT_ID.appspot.com/'
   description: ""
+security:
+  - ApiKeyAuth: []
 paths:
   /build-statuses:
     get:
@@ -25,8 +27,6 @@ paths:
       summary: Get all build statuses
       description: Get a list of all build statuses
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-      security:
-        - OAuth2AzureAD: [monitoringapi]
   /build-statuses/branch/{branch}:
     get:
       responses:
@@ -47,8 +47,6 @@ paths:
       summary: Get all branch build statuses
       description: Get a list of all build statuses from a specific branch
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-      security:
-        - OAuth2AzureAD: [monitoringapi]
   /build-statuses/project/{project_id}:
     get:
       responses:
@@ -74,8 +72,6 @@ paths:
       summary: Get all project build statuses
       description: Get a list of all build statuses from a specific project
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-      security:
-        - OAuth2AzureAD: [monitoringapi]
 components:
   schemas:
     BuildStatus:
@@ -132,13 +128,7 @@ components:
           schema:
             $ref: '#/components/schemas/BuildStatus'
   securitySchemes:
-    OAuth2AzureAD:
-      flows:
-        implicit:
-          authorizationUrl: 'https://azuread.url'
-          refreshUrl: 'https://azuread.url'
-          scopes:
-            monitoringapi: Grants read access
-      type: oauth2
-      x-tokenInfoFunc: openapi_server.controllers.security_controller_.info_from_OAuth2AzureAD
-      x-scopeValidateFunc: connexion.decorators.security.validate_scope
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
