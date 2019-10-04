@@ -1,5 +1,3 @@
-import config
-
 import connexion
 import six
 
