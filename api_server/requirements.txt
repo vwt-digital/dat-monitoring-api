@@ -7,4 +7,3 @@ google-cloud-datastore == 1.8.0
 google-cloud-storage == 1.16.1
 google-cloud-pubsub == 0.42.1
 google-python-cloud-debugger
-jwkaas == 0.3
