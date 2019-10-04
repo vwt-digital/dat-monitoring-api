@@ -1,11 +1,11 @@
-import os
+import config
 import io
 import json
 
 from google.cloud import kms_v1
 
 def decrypt():
-    project_id = os.environ['PROJECT_ID']
+    project_id = config.PROJECT_ID
     location_id = "europe"
     key_ring_id = "api-key"
     crypto_key_id = "api-key-monitoring"
