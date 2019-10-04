@@ -1,19 +1,33 @@
-from typing import List
+import config
+import logging
+from jwkaas import JWKaas
+
+from flask import g
+
+my_jwkaas = None
+my_e2e_jwkaas = None
+
+if hasattr(config, 'OAUTH_JWKS_URL'):
+    my_jwkaas = JWKaas(config.OAUTH_EXPECTED_AUDIENCE,
+                       config.OAUTH_EXPECTED_ISSUER,
+                       jwks_url=config.OAUTH_JWKS_URL)
 
 
-def info_from_ApiKeyAuth(api_key, required_scopes):
+def info_from_OAuth2AzureAD(token):
     """
-    Check and retrieve authentication information from api_key.
+    Validate and decode token.
     Returned value will be passed in 'token_info' parameter of your operation function, if there is one.
     'sub' or 'uid' will be set in 'user' parameter of your operation function, if there is one.
+    'scope' or 'scopes' will be passed to scope validation function.
 
-    :param api_key API key provided by Authorization header
-    :type api_key: str
-    :param required_scopes Always None. Used for other authentication method
-    :type required_scopes: None
-    :return: Information attached to provided api_key or None if api_key is invalid or does not allow access to called API
+    :param token Token provided by Authorization header
+    :type token: str
+    :return: Decoded token information or None if token is invalid
     :rtype: dict | None
     """
-    return {'uid': 'user_id'}
+    result = my_jwkaas.get_connexion_token_info(token)
 
+    if result is not None:
+        g.user = result.get('upn', '')
 
+    return result
