@@ -19,7 +19,7 @@ class DBProcessor(object):
 
             repo_name = payload['source']['repoSource'].get('repoName')
             branch = payload['source']['repoSource'].get('branchName')
-            kind = config.DB_PROCESSOR_KIND
+            kind = config.DB_BUILD_TRIGGERS_KIND
 
             key = '{}_{}'.format(repo_name, branch)
             entity_key = self.client.key(kind, key)
@@ -30,6 +30,20 @@ class DBProcessor(object):
 
             self.populate_from_payload(entity, payload)
             self.client.put(entity)
+        elif 'id' in payload:
+            kind = config.DB_BUILD_STATUSES_KIND
+
+            entity_key = self.client.key(kind, payload['id'])
+            entity = self.client.get(entity_key)
+
+            if entity is None:
+                entity = datastore.Entity(key=entity_key)
+
+            if 'status' in payload:
+                payload['status'] = parse_status(payload)
+
+            entity.update(payload)
+            self.client.put(entity)
 
     @staticmethod
     def populate_from_payload(entity, payload):
@@ -38,13 +52,7 @@ class DBProcessor(object):
         branch = payload['source']['repoSource'].get('branchName')
 
         # Set status to either pending, failing or passing
-        status = 'pending'
-        if payload['status'] == 'QUEUED' or payload['status'] == 'WORKING':
-            status = 'pending'
-        if payload['status'] in ['FAILURE', 'TIMEOUT']:
-            status = 'failing'
-        if payload['status'] == 'SUCCESS':
-            status = 'passing'
+        status = parse_status(payload)
 
         entity.update({
             'git_source': repo_name.split('_')[0],
@@ -55,3 +63,15 @@ class DBProcessor(object):
             'status': status,
             'updated': datetime.datetime.utcnow()
         })
+
+
+    def parse_status(payload):
+        status = 'pending'
+        if payload['status'] == 'QUEUED' or payload['status'] == 'WORKING':
+            status = 'pending'
+        if payload['status'] in ['FAILURE', 'TIMEOUT']:
+            status = 'failing'
+        if payload['status'] == 'SUCCESS':
+            status = 'passing'
+
+        return status
