@@ -4,6 +4,17 @@ import os
 import uuid
 import datetime
 
+def parse_status(payload):
+    status = 'pending'
+    if payload['status'] == 'QUEUED' or payload['status'] == 'WORKING':
+        status = 'pending'
+    if payload['status'] in ['FAILURE', 'TIMEOUT']:
+        status = 'failing'
+    if payload['status'] == 'SUCCESS':
+        status = 'passing'
+
+    return status
+
 
 class DBProcessor(object):
     def __init__(self):
@@ -63,15 +74,3 @@ class DBProcessor(object):
             'status': status,
             'updated': datetime.datetime.utcnow()
         })
-
-
-    def parse_status(payload):
-        status = 'pending'
-        if payload['status'] == 'QUEUED' or payload['status'] == 'WORKING':
-            status = 'pending'
-        if payload['status'] in ['FAILURE', 'TIMEOUT']:
-            status = 'failing'
-        if payload['status'] == 'SUCCESS':
-            status = 'passing'
-
-        return status
