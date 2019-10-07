@@ -15,27 +15,76 @@ servers:
 security:
 - ApiKeyAuth: []
 paths:
-  /build-statuses:
+  /build-statuses-other:
     get:
-      description: Get a list of all build statuses
-      operationId: build_statuses_get
+      description: Get a list of all other build statuses
+      operationId: build_statuses_other_get
       responses:
         200:
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/BuildStatus'
+                  $ref: '#/components/schemas/BuildOtherStatus'
                 type: array
-          description: Scheme with multiple build statuses
+          description: Scheme with multiple other build statuses
         204:
           description: No content
-      summary: Get all build statuses
+      summary: Get all other build statuses
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses/branch/{branch}:
+  /build-statuses-other/{status}:
     get:
-      description: Get a list of all build statuses from a specific branch
-      operationId: build_statuses_branch_branch_get
+      description: Get a list of all other build statuses with a specific status
+      operationId: build_statuses_other_status_get
+      parameters:
+      - description: A unique status identifier
+        explode: false
+        in: path
+        name: status
+        required: true
+        schema:
+          enum:
+          - failing
+          - pending
+          - passing
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BuildOtherStatus'
+                type: array
+          description: Scheme with multiple other build statuses
+        204:
+          description: No content
+        404:
+          description: Status not of correct type
+      summary: Get all other build statuses by status
+      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
+  /build-statuses-triggers:
+    get:
+      description: Get a list of all build trigger statuses
+      operationId: build_statuses_triggers_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BuildTriggerStatus'
+                type: array
+          description: Scheme with multiple build trigger statuses
+        204:
+          description: No content
+      summary: Get all build trigger statuses
+      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
+  /build-statuses-triggers/branch/{branch}:
+    get:
+      description: Get a list of all build trigger statuses from a specific branch
+      operationId: build_statuses_triggers_branch_branch_get
       parameters:
       - description: A unique branch identifier
         explode: false
@@ -54,72 +103,35 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/BuildStatus'
+                  $ref: '#/components/schemas/BuildTriggerStatus'
                 type: array
-          description: Scheme with multiple build statuses
+          description: Scheme with multiple build trigger statuses
         204:
           description: No content
         404:
           description: Branch not of correct type
-      summary: Get all branch build statuses
-      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses/project/{project_id}:
-    get:
-      description: Get a list of all build statuses from a specific project
-      operationId: build_statuses_project_project_id_get
-      parameters:
-      - description: A unique project identifier
-        explode: false
-        in: path
-        name: project_id
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: A specific branch
-        explode: true
-        in: query
-        name: branch
-        required: false
-        schema:
-          enum:
-          - master
-          - develop
-          type: string
-        style: form
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/BuildStatus'
-                type: array
-          description: Scheme with multiple build statuses
-        204:
-          description: No content
-        404:
-          description: Branch not of correct type
-      summary: Get all project build statuses
+      summary: Get all build trigger statuses by branch
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
 components:
   responses:
-    BuildStatuses:
+    BuildTriggerStatuses:
       content:
         application/json:
           schema:
             items:
-              $ref: '#/components/schemas/BuildStatus'
+              $ref: '#/components/schemas/BuildTriggerStatus'
             type: array
-      description: Scheme with multiple build statuses
-    BuildStatus:
+      description: Scheme with multiple build trigger statuses
+    BuildOtherStatuses:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/BuildStatus'
-      description: Scheme with a build status
+            items:
+              $ref: '#/components/schemas/BuildOtherStatus'
+            type: array
+      description: Scheme with multiple other build statuses
   schemas:
-    BuildStatus:
+    BuildTriggerStatus:
       example:
         branch: develop
         git_source: github
@@ -156,6 +168,38 @@ components:
       - repo_name
       - status
       - updated
+      type: object
+    BuildOtherStatus:
+      example:
+        finish_time: 2019-09-01T12:00:00+02:00
+        start_time: 2019-09-01T12:00:00+02:00
+        id: 918d693e-7cc1-45f7-bde2-e00cca32a5b1
+        project_id: random-project-id
+        status: passing
+      properties:
+        finish_time:
+          format: date-time
+          type: string
+        start_time:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        project_id:
+          type: string
+        status:
+          enum:
+          - pending
+          - failing
+          - passing
+          type: string
+      required:
+      - finish_time
+      - id
+      - project_id
+      - start_time
+      - status
       type: object
   securitySchemes:
     ApiKeyAuth:

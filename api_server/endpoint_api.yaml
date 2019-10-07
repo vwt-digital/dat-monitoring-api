@@ -17,21 +17,21 @@ servers:
 security:
   - ApiKeyAuth: []
 paths:
-  /build-statuses:
+  /build-statuses-triggers:
     get:
       responses:
         200:
-          $ref: '#/components/responses/BuildStatuses'
+          $ref: '#/components/responses/BuildTriggerStatuses'
         204:
           description: No content
-      summary: Get all build statuses
-      description: Get a list of all build statuses
+      summary: Get all build trigger statuses
+      description: Get a list of all build trigger statuses
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses/branch/{branch}:
+  /build-statuses-triggers/branch/{branch}:
     get:
       responses:
         200:
-          $ref: '#/components/responses/BuildStatuses'
+          $ref: '#/components/responses/BuildTriggerStatuses'
         204:
           description: No content
         404:
@@ -44,37 +44,42 @@ paths:
           schema:
             type: string
             enum: [master, develop]
-      summary: Get all branch build statuses
-      description: Get a list of all build statuses from a specific branch
+      summary: Get all build trigger statuses by branch
+      description: Get a list of all build trigger statuses from a specific branch
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses/project/{project_id}:
+  /build-statuses-other:
     get:
       responses:
         200:
-          $ref: '#/components/responses/BuildStatuses'
+          $ref: '#/components/responses/BuildOtherStatuses'
+        204:
+          description: No content
+      summary: Get all other build statuses
+      description: Get a list of all other build statuses
+      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
+  /build-statuses-other/{status}:
+    get:
+      responses:
+        200:
+          $ref: '#/components/responses/BuildOtherStatuses'
         204:
           description: No content
         404:
-          description: Branch not of correct type
+          description: Status not of correct type
+      summary: Get all other build statuses by status
+      description: Get a list of all other build statuses with a specific status
       parameters:
-        - name: project_id
+        - name: status
           in: path
-          description: A unique project identifier
+          description: A unique status identifier
           required: True
           schema:
             type: string
-        - in: query
-          name: branch
-          schema:
-            type: string
-            enum: [master, develop]
-          description: A specific branch
-      summary: Get all project build statuses
-      description: Get a list of all build statuses from a specific project
+            enum: [failing, pending, passing]
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
 components:
   schemas:
-    BuildStatus:
+    BuildTriggerStatus:
       required:
       - branch
       - git_source
@@ -112,21 +117,55 @@ components:
         repo_name: random-repo-name
         status: passing
         updated: 2019-09-01T12:00:00+02:00
+    BuildOtherStatus:
+      required:
+      - finish_time
+      - start_time
+      - id
+      - project_id
+      - status
+      type: object
+      properties:
+        finish_time:
+          format: date-time
+          type: string
+        start_time:
+          format: date-time
+          type: string
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+        status:
+          enum:
+          - pending
+          - failing
+          - passing
+          type: string
+      example:
+        finish_time: 2019-09-01T12:00:00+02:00
+        start_time: 2019-09-01T12:00:00+02:00
+        id: 918d693e-7cc1-45f7-bde2-e00cca32a5b1
+        project_id: random-project-id
+        status: passing
   responses:
-    BuildStatuses:
-      description: 'Scheme with multiple build statuses'
+    BuildTriggerStatuses:
+      description: Scheme with multiple build trigger statuses
       content:
         application/json:
           schema:
             type: array
             items:
-              $ref: '#/components/schemas/BuildStatus'
-    BuildStatus:
-      description: 'Scheme with a build status'
+              $ref: '#/components/schemas/BuildTriggerStatus'
+    BuildOtherStatuses:
+      description: Scheme with multiple other build statuses
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/BuildStatus'
+            type: array
+            items:
+              $ref: '#/components/schemas/BuildOtherStatus'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
