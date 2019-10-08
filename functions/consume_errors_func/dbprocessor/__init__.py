@@ -1,5 +1,6 @@
 from google.cloud import datastore
 import config
+import uuid
 
 class DBProcessor(object):
     def __init__(self):
@@ -7,7 +8,9 @@ class DBProcessor(object):
         pass
 
     def process(self, payload):
-        entity_key = self.client.key(config.DB_ERROR_REPORTING_KIND, payload['id'])
+        key = payload['insertId'] if 'insertId' in payload else str(uuid.uuid4())
+
+        entity_key = self.client.key(config.DB_ERROR_REPORTING_KIND, key)
         entity = self.client.get(entity_key)
 
         if entity is None:
