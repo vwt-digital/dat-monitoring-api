@@ -6,7 +6,7 @@ import json
 from google.cloud import kms_v1
 
 def decrypt():
-    project_id = os.environ['GAE_APPLICATION'].split('~')[1]
+    project_id = os.environ['GOOGLE_CLOUD_PROJECT']
     location_id = "europe"
     key_ring_id = "api-key"
     crypto_key_id = "api-key-monitoring"
