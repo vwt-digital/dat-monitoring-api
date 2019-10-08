@@ -39,7 +39,7 @@ class DBProcessor(object):
             if entity is None:
                 entity = datastore.Entity(key=entity_key)
 
-            self.populate_from_payload(entity, payload)
+            self.populate_trigger_from_payload(entity, payload)
             self.client.put(entity)
         elif 'id' in payload:
             kind = config.DB_BUILD_STATUSES_KIND
@@ -50,14 +50,11 @@ class DBProcessor(object):
             if entity is None:
                 entity = datastore.Entity(key=entity_key)
 
-            if 'status' in payload:
-                payload['status'] = parse_status(payload)
-
-            entity.update(payload)
+            self.populate_other_from_payload(entity, payload)
             self.client.put(entity)
 
     @staticmethod
-    def populate_from_payload(entity, payload):
+    def populate_trigger_from_payload(entity, payload):
         # Set repo and branch names | repoName = {git_source}_{organization}_{project_id}
         repo_name = payload['source']['repoSource'].get('repoName')
         branch = payload['source']['repoSource'].get('branchName')
@@ -73,4 +70,20 @@ class DBProcessor(object):
             'branch': branch,
             'status': status,
             'updated': datetime.datetime.utcnow()
+        })
+
+    @staticmethod
+    def populate_other_from_payload(entity, payload):
+        # Set status to either pending, failing or passing
+        status = parse_status(payload) if 'status' in payload else '';
+
+        entity.update({
+            'id': payload['id'],
+            'logUrl': payload['logUrl'] if 'logUrl' in payload else '',
+            'logsBucket': payload['logsBucket'] if 'logsBucket' in payload else '',
+            'projectId': payload['projectId'] if 'projectId' in payload else '',
+            'status': '{}'.format(status),
+            'createTime': payload['createTime'] if 'createTime' in payload else '',
+            'finishTime': payload['finishTime'] if 'finishTime' in payload else '',
+            'startTime': payload['startTime'] if 'startTime' in payload else ''
         })

@@ -9,9 +9,7 @@ class DBProcessor(object):
         pass
 
     def process(self, payload):
-        key = payload['insertId'] if 'insertId' in payload else str(uuid.uuid4())
-
-        entity_key = self.client.key(config.DB_ERROR_REPORTING_KIND, key)
+        entity_key = self.client.key(config.DB_ERROR_REPORTING_KIND, str(uuid.uuid4()))
         entity = self.client.get(entity_key)
 
         if entity is None:
