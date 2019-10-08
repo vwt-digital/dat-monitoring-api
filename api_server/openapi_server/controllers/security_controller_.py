@@ -6,7 +6,8 @@ import json
 from google.cloud import kms_v1
 
 def decrypt():
-    project_id = os.environ['GOOGLE_CLOUD_PROJECT']
+    # project_id = os.environ['GOOGLE_CLOUD_PROJECT']
+    project_id = "vwt-d-gew1-dat-monitoring"
     location_id = "europe"
     key_ring_id = "api-key"
     crypto_key_id = "api-key-monitoring"

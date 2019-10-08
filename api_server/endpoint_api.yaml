@@ -27,26 +27,6 @@ paths:
       summary: Get all build trigger statuses
       description: Get a list of all build trigger statuses
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses-triggers/branch/{branch}:
-    get:
-      responses:
-        200:
-          $ref: '#/components/responses/BuildTriggerStatuses'
-        204:
-          description: No content
-        404:
-          description: Branch not of correct type
-      parameters:
-        - name: branch
-          in: path
-          description: A unique branch identifier
-          required: True
-          schema:
-            type: string
-            enum: [master, develop]
-      summary: Get all build trigger statuses by branch
-      description: Get a list of all build trigger statuses from a specific branch
-      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
   /build-statuses-other:
     get:
       responses:
@@ -54,29 +34,19 @@ paths:
           $ref: '#/components/responses/BuildOtherStatuses'
         204:
           description: No content
-      summary: Get all other build statuses
-      description: Get a list of all other build statuses
+      summary: Get last 20 other build statuses
+      description: Get a list of last 20 other build statuses
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses-other/{status}:
+  /error-reporting:
     get:
       responses:
         200:
-          $ref: '#/components/responses/BuildOtherStatuses'
+          $ref: '#/components/responses/ErrorReporting'
         204:
           description: No content
-        404:
-          description: Status not of correct type
-      summary: Get all other build statuses by status
-      description: Get a list of all other build statuses with a specific status
-      parameters:
-        - name: status
-          in: path
-          description: A unique status identifier
-          required: True
-          schema:
-            type: string
-            enum: [failing, pending, passing]
-      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
+      summary: Get last 20 error reportings
+      description: Get a list of last 20 error reportings
+      x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
 components:
   schemas:
     BuildTriggerStatus:
@@ -149,6 +119,44 @@ components:
         id: 918d693e-7cc1-45f7-bde2-e00cca32a5b1
         project_id: random-project-id
         status: passing
+    ErrorReport:
+      required:
+      - id
+      - json_payload
+      - log_name
+      - receive_timestamp
+      - resource
+      - source_location
+      - text_payload
+      - trace
+      type: object
+      properties:
+        id:
+          type: string
+        json_payload:
+          type: object
+        log_name:
+          type: string
+        receive_timestamp:
+          format: date-time
+          type: string
+        resource:
+          type: object
+        source_location:
+          type: object
+        text_payload:
+          type: string
+        trace:
+          type: string
+      example:
+        id: 1a9390e9-4ac5-4527-8e5e-05d2d153ada0
+        json_payload: {}
+        log_name: random-log-name
+        receive_timestamp: 2019-09-01T12:00:00+02:00
+        resource: {}
+        source_location: {}
+        text_payload: random-text-payload
+        trace: random-trace
   responses:
     BuildTriggerStatuses:
       description: Scheme with multiple build trigger statuses
@@ -166,6 +174,14 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/BuildOtherStatus'
+    ErrorReporting:
+      description: Scheme with multiple error reportings
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ErrorReport'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
