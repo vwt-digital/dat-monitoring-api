@@ -1,6 +1,7 @@
 import connexion
 import six
 import config
+import datetime
 
 from flask import jsonify
 from flask import make_response
@@ -11,30 +12,37 @@ from openapi_server.models.error_report import ErrorReport  # noqa: E501
 from openapi_server import util
 
 
-def error_reporting_get():  # noqa: E501
-    """Get last 20 error reportings
+def error_reporting_get(days=None, max_rows=None):  # noqa: E501
+    """Get errors reportings by conditions
 
-    Get a list of last 20 error reportings # noqa: E501
+    Get a list of errors reportings by days and max rows # noqa: E501
 
+    :param days: Total days to include
+    :type days: int
+    :param max_rows: Max rows to return
+    :type max_rows: int
 
     :rtype: List[ErrorReport]
     """
+    max_rows = max_rows if max_rows else 20
+    days = days if days else 7
+
+    time_delta = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_REPORTING_KIND)
+    query.add_filter('receiveTimestamp', '>', time_delta)
     query.order = ['-receiveTimestamp']
-    db_data = query.fetch(20)
+    db_data = query.fetch(max_rows)
 
     # Return results
     if db_data:
         result = [{
-            'id': ap['insertId'] if 'insertId' in ap else '',
-            'json_payload': ap['jsonPayload'] if 'jsonPayload' in ap else '',
-            'log_name': ap['logName'] if 'logName' in ap else '',
-            'receive_timestamp': ap['receiveTimestamp'] if 'receiveTimestamp' in ap else '',
-            'resource': ap['resource'] if 'resource' in ap else '',
-            'source_location': ap['sourceLocation'] if 'sourceLocation' in ap else '',
-            'text_payload': ap['textPayload'] if 'textPayload' in ap else '',
-            'trace': ap['trace'] if 'finishTime' in ap else ''
+            'id': ap['insertId'],
+            'log_name': ap['logName'],
+            'receive_timestamp': ap['receiveTimestamp'],
+            'resource': ap['resource'],
+            'trace': ap['trace']
         } for ap in db_data]
         return result
 

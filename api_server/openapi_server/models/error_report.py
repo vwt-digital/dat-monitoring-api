@@ -15,55 +15,40 @@ class ErrorReport(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, id=None, json_payload=None, log_name=None, receive_timestamp=None, resource=None, source_location=None, text_payload=None, trace=None):  # noqa: E501
+    def __init__(self, id=None, log_name=None, receive_timestamp=None, resource=None, trace=None):  # noqa: E501
         """ErrorReport - a model defined in OpenAPI
 
         :param id: The id of this ErrorReport.  # noqa: E501
         :type id: str
-        :param json_payload: The json_payload of this ErrorReport.  # noqa: E501
-        :type json_payload: object
         :param log_name: The log_name of this ErrorReport.  # noqa: E501
         :type log_name: str
         :param receive_timestamp: The receive_timestamp of this ErrorReport.  # noqa: E501
         :type receive_timestamp: datetime
         :param resource: The resource of this ErrorReport.  # noqa: E501
         :type resource: object
-        :param source_location: The source_location of this ErrorReport.  # noqa: E501
-        :type source_location: object
-        :param text_payload: The text_payload of this ErrorReport.  # noqa: E501
-        :type text_payload: str
         :param trace: The trace of this ErrorReport.  # noqa: E501
         :type trace: str
         """
         self.openapi_types = {
             'id': str,
-            'json_payload': object,
             'log_name': str,
             'receive_timestamp': datetime,
             'resource': object,
-            'source_location': object,
-            'text_payload': str,
             'trace': str
         }
 
         self.attribute_map = {
             'id': 'id',
-            'json_payload': 'json_payload',
             'log_name': 'log_name',
             'receive_timestamp': 'receive_timestamp',
             'resource': 'resource',
-            'source_location': 'source_location',
-            'text_payload': 'text_payload',
             'trace': 'trace'
         }
 
         self._id = id
-        self._json_payload = json_payload
         self._log_name = log_name
         self._receive_timestamp = receive_timestamp
         self._resource = resource
-        self._source_location = source_location
-        self._text_payload = text_payload
         self._trace = trace
 
     @classmethod
@@ -99,29 +84,6 @@ class ErrorReport(Model):
             raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
         self._id = id
-
-    @property
-    def json_payload(self):
-        """Gets the json_payload of this ErrorReport.
-
-
-        :return: The json_payload of this ErrorReport.
-        :rtype: object
-        """
-        return self._json_payload
-
-    @json_payload.setter
-    def json_payload(self, json_payload):
-        """Sets the json_payload of this ErrorReport.
-
-
-        :param json_payload: The json_payload of this ErrorReport.
-        :type json_payload: object
-        """
-        if json_payload is None:
-            raise ValueError("Invalid value for `json_payload`, must not be `None`")  # noqa: E501
-
-        self._json_payload = json_payload
 
     @property
     def log_name(self):
@@ -191,52 +153,6 @@ class ErrorReport(Model):
             raise ValueError("Invalid value for `resource`, must not be `None`")  # noqa: E501
 
         self._resource = resource
-
-    @property
-    def source_location(self):
-        """Gets the source_location of this ErrorReport.
-
-
-        :return: The source_location of this ErrorReport.
-        :rtype: object
-        """
-        return self._source_location
-
-    @source_location.setter
-    def source_location(self, source_location):
-        """Sets the source_location of this ErrorReport.
-
-
-        :param source_location: The source_location of this ErrorReport.
-        :type source_location: object
-        """
-        if source_location is None:
-            raise ValueError("Invalid value for `source_location`, must not be `None`")  # noqa: E501
-
-        self._source_location = source_location
-
-    @property
-    def text_payload(self):
-        """Gets the text_payload of this ErrorReport.
-
-
-        :return: The text_payload of this ErrorReport.
-        :rtype: str
-        """
-        return self._text_payload
-
-    @text_payload.setter
-    def text_payload(self, text_payload):
-        """Sets the text_payload of this ErrorReport.
-
-
-        :param text_payload: The text_payload of this ErrorReport.
-        :type text_payload: str
-        """
-        if text_payload is None:
-            raise ValueError("Invalid value for `text_payload`, must not be `None`")  # noqa: E501
-
-        self._text_payload = text_payload
 
     @property
     def trace(self):
