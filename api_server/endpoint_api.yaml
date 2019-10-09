@@ -92,6 +92,16 @@ paths:
               type: integer
               default: 20
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
+  /error-reporting/count:
+    get:
+      responses:
+        200:
+          $ref: '#/components/responses/ErrorReportingCount'
+        204:
+          description: No content
+      summary: Get count of project errors reportings in last 7 days
+      description: Get a list of projects with errors reportings count in last 7 days
+      x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
 components:
   schemas:
     BuildTriggerStatus:
@@ -190,6 +200,28 @@ components:
         receive_timestamp: 2019-09-01T12:00:00+02:00
         resource: {}
         trace: random-trace
+    ErrorReportCount:
+      required:
+      - count
+      - latest_updated
+      - project_id
+      - resource
+      type: object
+      properties:
+        count:
+          type: integer
+        latest_updated:
+          format: date-time
+          type: string
+        project_id:
+          type: string
+        resource:
+          type: object
+      example:
+        count: 123
+        latest_updated: 2019-09-01T12:00:00+02:00
+        project_id: random-project-id
+        resource: { 'type': 'application' }
   responses:
     BuildTriggerStatuses:
       description: Scheme with multiple build trigger statuses
@@ -215,6 +247,14 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/ErrorReport'
+    ErrorReportingCount:
+      description: Scheme with count of error reportings per project
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ErrorReportCount'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

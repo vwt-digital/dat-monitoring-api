@@ -135,6 +135,23 @@ paths:
           description: No content
       summary: Get errors reportings by conditions
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
+  /error-reporting/count:
+    get:
+      description: Get a list of projects with errors reportings count in last 7 days
+      operationId: error_reporting_count_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ErrorReportCount'
+                type: array
+          description: Scheme with count of error reportings per project
+        204:
+          description: No content
+      summary: Get count of project errors reportings in last 7 days
+      x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
 components:
   responses:
     BuildTriggerStatuses:
@@ -161,6 +178,14 @@ components:
               $ref: '#/components/schemas/ErrorReport'
             type: array
       description: Scheme with multiple error reportings
+    ErrorReportingCount:
+      content:
+        application/json:
+          schema:
+            items:
+              $ref: '#/components/schemas/ErrorReportCount'
+            type: array
+      description: Scheme with count of error reportings per project
   schemas:
     BuildTriggerStatus:
       example:
@@ -257,6 +282,29 @@ components:
       - receive_timestamp
       - resource
       - trace
+      type: object
+    ErrorReportCount:
+      example:
+        count: 123
+        latest_updated: 2019-09-01T12:00:00+02:00
+        project_id: random-project-id
+        resource:
+          type: application
+      properties:
+        count:
+          type: integer
+        latest_updated:
+          format: date-time
+          type: string
+        project_id:
+          type: string
+        resource:
+          type: object
+      required:
+      - count
+      - latest_updated
+      - project_id
+      - resource
       type: object
   securitySchemes:
     ApiKeyAuth:

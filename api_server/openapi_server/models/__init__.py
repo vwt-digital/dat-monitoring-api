@@ -6,3 +6,4 @@ from __future__ import absolute_import
 from openapi_server.models.build_other_status import BuildOtherStatus
 from openapi_server.models.build_trigger_status import BuildTriggerStatus
 from openapi_server.models.error_report import ErrorReport
+from openapi_server.models.error_report_count import ErrorReportCount
