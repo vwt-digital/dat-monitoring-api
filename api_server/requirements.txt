@@ -10,3 +10,5 @@ google-cloud-pubsub == 0.42.1
 google-cloud-kms == 0.2.1
 google-python-cloud-debugger == 2.13
 pandas == 0.25.1
+Flask-AuditLog==1.0
+Flask-No-Cache==1.0
