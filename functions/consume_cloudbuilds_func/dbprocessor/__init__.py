@@ -3,6 +3,7 @@ import config
 import os
 import uuid
 import datetime
+import json
 
 def parse_status(payload):
     status = 'pending'
@@ -41,17 +42,20 @@ class DBProcessor(object):
 
             self.populate_trigger_from_payload(entity, payload)
             self.client.put(entity)
-        elif 'id' in payload:
-            kind = config.DB_BUILD_STATUSES_KIND
+        elif 'id' in payload
+            # Check if the backup executing command is in payload
+            payload_dump = json.dumps(payload)
+            if 'dcat-deploy/backup/run_backup.sh' in payload_dump:
+                kind = config.DB_BUILD_STATUSES_KIND
 
-            entity_key = self.client.key(kind, payload['id'])
-            entity = self.client.get(entity_key)
+                entity_key = self.client.key(kind, payload['id'])
+                entity = self.client.get(entity_key)
 
-            if entity is None:
-                entity = datastore.Entity(key=entity_key)
+                if entity is None:
+                    entity = datastore.Entity(key=entity_key)
 
-            self.populate_other_from_payload(entity, payload)
-            self.client.put(entity)
+                self.populate_other_from_payload(entity, payload)
+                self.client.put(entity)
 
     @staticmethod
     def populate_trigger_from_payload(entity, payload):
@@ -69,7 +73,8 @@ class DBProcessor(object):
             'project_id': payload['projectId'],
             'branch': branch,
             'status': status,
-            'updated': datetime.datetime.utcnow()
+            'updated': datetime.datetime.utcnow().isoformat(),
+            'log_url': payload['logUrl'] if 'logUrl' in payload else ''
         })
 
     @staticmethod
@@ -79,11 +84,11 @@ class DBProcessor(object):
 
         entity.update({
             'id': payload['id'],
-            'logUrl': payload['logUrl'] if 'logUrl' in payload else '',
-            'logsBucket': payload['logsBucket'] if 'logsBucket' in payload else '',
-            'projectId': payload['projectId'] if 'projectId' in payload else '',
+            'log_url': payload['logUrl'] if 'logUrl' in payload else '',
+            'logs_bucket': payload['logsBucket'] if 'logsBucket' in payload else '',
+            'project_id': payload['projectId'] if 'projectId' in payload else '',
             'status': '{}'.format(status),
-            'createTime': payload['createTime'] if 'createTime' in payload else '',
-            'finishTime': payload['finishTime'] if 'finishTime' in payload else '',
-            'startTime': payload['startTime'] if 'startTime' in payload else ''
+            'create_time': payload['createTime'] if 'createTime' in payload else '',
+            'finish_time': payload['finishTime'] if 'finishTime' in payload else '',
+            'start_time': payload['startTime'] if 'startTime' in payload else ''
         })
