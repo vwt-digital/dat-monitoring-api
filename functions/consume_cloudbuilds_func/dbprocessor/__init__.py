@@ -8,7 +8,7 @@ def parse_status(payload):
     status = 'pending'
     if payload['status'] == 'QUEUED' or payload['status'] == 'WORKING':
         status = 'pending'
-    if payload['status'] in ['FAILURE', 'TIMEOUT']:
+    if payload['status'] in ['FAILURE', 'TIMEOUT', 'CANCELLED']:
         status = 'failing'
     if payload['status'] == 'SUCCESS':
         status = 'passing'
