@@ -196,6 +196,7 @@ components:
         repo_name: random-repo-name
         status: passing
         updated: 2019-09-01T12:00:00+02:00
+        log_url: https://console.cloud.google.com/gcr/builds/random-project-id
       properties:
         branch:
           type: string
@@ -216,9 +217,12 @@ components:
         updated:
           format: date-time
           type: string
+        log_url:
+          type: string
       required:
       - branch
       - git_source
+      - log_url
       - organization
       - project_id
       - repo_name
@@ -232,6 +236,7 @@ components:
         id: 918d693e-7cc1-45f7-bde2-e00cca32a5b1
         project_id: random-project-id
         status: passing
+        log_url: https://console.cloud.google.com/gcr/builds/918d693e-7cc1-45f7-bde2-e00cca32a5b1
       properties:
         finish_time:
           format: date-time
@@ -250,9 +255,12 @@ components:
           - failing
           - passing
           type: string
+        log_url:
+          type: string
       required:
       - finish_time
       - id
+      - log_url
       - project_id
       - start_time
       - status

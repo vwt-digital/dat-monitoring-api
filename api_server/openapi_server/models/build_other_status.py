@@ -15,7 +15,7 @@ class BuildOtherStatus(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, finish_time=None, start_time=None, id=None, project_id=None, status=None):  # noqa: E501
+    def __init__(self, finish_time=None, start_time=None, id=None, project_id=None, status=None, log_url=None):  # noqa: E501
         """BuildOtherStatus - a model defined in OpenAPI
 
         :param finish_time: The finish_time of this BuildOtherStatus.  # noqa: E501
@@ -28,13 +28,16 @@ class BuildOtherStatus(Model):
         :type project_id: str
         :param status: The status of this BuildOtherStatus.  # noqa: E501
         :type status: str
+        :param log_url: The log_url of this BuildOtherStatus.  # noqa: E501
+        :type log_url: str
         """
         self.openapi_types = {
             'finish_time': datetime,
             'start_time': datetime,
             'id': str,
             'project_id': str,
-            'status': str
+            'status': str,
+            'log_url': str
         }
 
         self.attribute_map = {
@@ -42,7 +45,8 @@ class BuildOtherStatus(Model):
             'start_time': 'start_time',
             'id': 'id',
             'project_id': 'project_id',
-            'status': 'status'
+            'status': 'status',
+            'log_url': 'log_url'
         }
 
         self._finish_time = finish_time
@@ -50,6 +54,7 @@ class BuildOtherStatus(Model):
         self._id = id
         self._project_id = project_id
         self._status = status
+        self._log_url = log_url
 
     @classmethod
     def from_dict(cls, dikt) -> 'BuildOtherStatus':
@@ -180,3 +185,26 @@ class BuildOtherStatus(Model):
             )
 
         self._status = status
+
+    @property
+    def log_url(self):
+        """Gets the log_url of this BuildOtherStatus.
+
+
+        :return: The log_url of this BuildOtherStatus.
+        :rtype: str
+        """
+        return self._log_url
+
+    @log_url.setter
+    def log_url(self, log_url):
+        """Sets the log_url of this BuildOtherStatus.
+
+
+        :param log_url: The log_url of this BuildOtherStatus.
+        :type log_url: str
+        """
+        if log_url is None:
+            raise ValueError("Invalid value for `log_url`, must not be `None`")  # noqa: E501
+
+        self._log_url = log_url

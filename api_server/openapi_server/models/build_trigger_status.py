@@ -15,7 +15,7 @@ class BuildTriggerStatus(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, branch=None, git_source=None, organization=None, project_id=None, repo_name=None, status=None, updated=None):  # noqa: E501
+    def __init__(self, branch=None, git_source=None, organization=None, project_id=None, repo_name=None, status=None, updated=None, log_url=None):  # noqa: E501
         """BuildTriggerStatus - a model defined in OpenAPI
 
         :param branch: The branch of this BuildTriggerStatus.  # noqa: E501
@@ -32,6 +32,8 @@ class BuildTriggerStatus(Model):
         :type status: str
         :param updated: The updated of this BuildTriggerStatus.  # noqa: E501
         :type updated: datetime
+        :param log_url: The log_url of this BuildTriggerStatus.  # noqa: E501
+        :type log_url: str
         """
         self.openapi_types = {
             'branch': str,
@@ -40,7 +42,8 @@ class BuildTriggerStatus(Model):
             'project_id': str,
             'repo_name': str,
             'status': str,
-            'updated': datetime
+            'updated': datetime,
+            'log_url': str
         }
 
         self.attribute_map = {
@@ -50,7 +53,8 @@ class BuildTriggerStatus(Model):
             'project_id': 'project_id',
             'repo_name': 'repo_name',
             'status': 'status',
-            'updated': 'updated'
+            'updated': 'updated',
+            'log_url': 'log_url'
         }
 
         self._branch = branch
@@ -60,6 +64,7 @@ class BuildTriggerStatus(Model):
         self._repo_name = repo_name
         self._status = status
         self._updated = updated
+        self._log_url = log_url
 
     @classmethod
     def from_dict(cls, dikt) -> 'BuildTriggerStatus':
@@ -236,3 +241,26 @@ class BuildTriggerStatus(Model):
             raise ValueError("Invalid value for `updated`, must not be `None`")  # noqa: E501
 
         self._updated = updated
+
+    @property
+    def log_url(self):
+        """Gets the log_url of this BuildTriggerStatus.
+
+
+        :return: The log_url of this BuildTriggerStatus.
+        :rtype: str
+        """
+        return self._log_url
+
+    @log_url.setter
+    def log_url(self, log_url):
+        """Sets the log_url of this BuildTriggerStatus.
+
+
+        :param log_url: The log_url of this BuildTriggerStatus.
+        :type log_url: str
+        """
+        if log_url is None:
+            raise ValueError("Invalid value for `log_url`, must not be `None`")  # noqa: E501
+
+        self._log_url = log_url

@@ -30,14 +30,15 @@ def build_statuses_triggers_get():  # noqa: E501
     # Return results
     if db_data:
         result = [{
-            'branch': ap['branch'],
-            'git_source': ap['git_source'],
-            'organization': ap['organization'],
-            'project_id': ap['project_id'],
-            'repo_name': ap['repo_name'],
-            'status': ap['status'],
-            'updated': ap['updated']
-        } for ap in db_data]
+            'branch': status['branch'] if 'branch' in status else '',
+            'git_source': status['git_source'] if 'git_source' in status else '',
+            'organization': status['organization'] if 'organization' in status else '',
+            'project_id': status['project_id'] if 'project_id' in status else '',
+            'repo_name': status['repo_name'] if 'repo_name' in status else '',
+            'status': status['status'] if 'status' in status else '',
+            'updated': status['updated'] if 'updated' in status else '',
+            'log_url': status['log_url'] if 'log_url' in status else ''
+        } for status in db_data]
         return result
 
     return make_response(jsonify([]), 204)
@@ -59,12 +60,13 @@ def build_statuses_other_get():  # noqa: E501
     # Return results
     if db_data:
         result = [{
-            'finish_time': ap['finishTime'] if 'finishTime' in ap else '',
-            'start_time': ap['startTime'] if 'startTime' in ap else '',
-            'id': ap['id'] if 'id' in ap else '',
-            'project_id': ap['projectId'] if 'projectId' in ap else '',
-            'status': ap['status'] if 'status' in ap else ''
-        } for ap in db_data]
+            'finish_time': status['finishTime'] if 'finishTime' in status else '',
+            'start_time': status['startTime'] if 'startTime' in status else '',
+            'id': status['id'] if 'id' in status else '',
+            'project_id': status['projectId'] if 'projectId' in status else '',
+            'status': status['status'] if 'status' in status else '',
+            'log_url': status['log_url'] if 'log_url' in status else ''
+        } for status in db_data]
         return result
 
     return make_response(jsonify([]), 204)
@@ -92,7 +94,7 @@ def build_statuses_other_status_get(status, days=None, max_rows=None):  # noqa: 
     max_rows = max_rows if max_rows else 20
     days = days if days else 7
 
-    time_delta = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+    time_delta = (datetime.datetime.utcnow() - datetime.timedelta(days=days)).isoformat()
 
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_BUILD_STATUSES_KIND)
@@ -108,12 +110,13 @@ def build_statuses_other_status_get(status, days=None, max_rows=None):  # noqa: 
     # Return results
     if db_data:
         result = [{
-            'finish_time': ap['finishTime'] if 'finishTime' in ap else '',
-            'start_time': ap['startTime'] if 'startTime' in ap else '',
-            'id': ap['id'] if 'id' in ap else '',
-            'project_id': ap['projectId'] if 'projectId' in ap else '',
-            'status': ap['status'] if 'status' in ap else ''
-        } for ap in db_data]
+            'finish_time': status['finishTime'] if 'finishTime' in status else '',
+            'start_time': status['startTime'] if 'startTime' in status else '',
+            'id': status['id'] if 'id' in status else '',
+            'project_id': status['projectId'] if 'projectId' in status else '',
+            'status': status['status'] if 'status' in status else '',
+            'log_url': status['logUrl'] if 'logUrl' in status else ''
+        } for status in db_data]
         return result
 
     return make_response(jsonify([]), 204)

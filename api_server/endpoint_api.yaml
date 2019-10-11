@@ -113,6 +113,7 @@ components:
       - repo_name
       - status
       - updated
+      - log_url
       type: object
       properties:
         branch:
@@ -134,6 +135,8 @@ components:
         updated:
           format: date-time
           type: string
+        log_url:
+          type: string
       example:
         branch: develop
         git_source: github
@@ -142,6 +145,7 @@ components:
         repo_name: random-repo-name
         status: passing
         updated: 2019-09-01T12:00:00+02:00
+        log_url: https://console.cloud.google.com/gcr/builds/random-project-id
     BuildOtherStatus:
       required:
       - finish_time
@@ -149,6 +153,7 @@ components:
       - id
       - project_id
       - status
+      - log_url
       type: object
       properties:
         finish_time:
@@ -168,12 +173,15 @@ components:
           - failing
           - passing
           type: string
+        log_url:
+          type: string
       example:
         finish_time: 2019-09-01T12:00:00+02:00
         start_time: 2019-09-01T12:00:00+02:00
         id: 918d693e-7cc1-45f7-bde2-e00cca32a5b1
         project_id: random-project-id
         status: passing
+        log_url: https://console.cloud.google.com/gcr/builds/918d693e-7cc1-45f7-bde2-e00cca32a5b1
     ErrorReport:
       required:
       - id
