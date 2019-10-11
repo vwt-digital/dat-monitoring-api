@@ -42,7 +42,7 @@ class DBProcessor(object):
 
             self.populate_trigger_from_payload(entity, payload)
             self.client.put(entity)
-        elif 'id' in payload
+        elif 'id' in payload:
             # Check if the backup executing command is in payload
             payload_dump = json.dumps(payload)
             if 'dcat-deploy/backup/run_backup.sh' in payload_dump:
