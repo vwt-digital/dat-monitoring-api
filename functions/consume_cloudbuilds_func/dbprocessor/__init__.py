@@ -3,12 +3,13 @@ import config
 import os
 import uuid
 import datetime
+import json
 
 def parse_status(payload):
     status = 'pending'
     if payload['status'] == 'QUEUED' or payload['status'] == 'WORKING':
         status = 'pending'
-    if payload['status'] in ['FAILURE', 'TIMEOUT']:
+    if payload['status'] in ['FAILURE', 'TIMEOUT', 'CANCELLED']:
         status = 'failing'
     if payload['status'] == 'SUCCESS':
         status = 'passing'
@@ -39,25 +40,25 @@ class DBProcessor(object):
             if entity is None:
                 entity = datastore.Entity(key=entity_key)
 
-            self.populate_from_payload(entity, payload)
+            self.populate_trigger_from_payload(entity, payload)
             self.client.put(entity)
         elif 'id' in payload:
-            kind = config.DB_BUILD_STATUSES_KIND
+            # Check if the backup executing command is in payload
+            payload_dump = json.dumps(payload)
+            if 'dcat-deploy/backup/run_backup.sh' in payload_dump:
+                kind = config.DB_BUILD_STATUSES_KIND
 
-            entity_key = self.client.key(kind, payload['id'])
-            entity = self.client.get(entity_key)
+                entity_key = self.client.key(kind, payload['id'])
+                entity = self.client.get(entity_key)
 
-            if entity is None:
-                entity = datastore.Entity(key=entity_key)
+                if entity is None:
+                    entity = datastore.Entity(key=entity_key)
 
-            if 'status' in payload:
-                payload['status'] = parse_status(payload)
-
-            entity.update(payload)
-            self.client.put(entity)
+                self.populate_other_from_payload(entity, payload)
+                self.client.put(entity)
 
     @staticmethod
-    def populate_from_payload(entity, payload):
+    def populate_trigger_from_payload(entity, payload):
         # Set repo and branch names | repoName = {git_source}_{organization}_{project_id}
         repo_name = payload['source']['repoSource'].get('repoName')
         branch = payload['source']['repoSource'].get('branchName')
@@ -72,5 +73,22 @@ class DBProcessor(object):
             'project_id': payload['projectId'],
             'branch': branch,
             'status': status,
-            'updated': datetime.datetime.utcnow()
+            'updated': datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            'log_url': payload['logUrl'] if 'logUrl' in payload else ''
+        })
+
+    @staticmethod
+    def populate_other_from_payload(entity, payload):
+        # Set status to either pending, failing or passing
+        status = parse_status(payload) if 'status' in payload else '';
+
+        entity.update({
+            'id': payload['id'],
+            'log_url': payload['logUrl'] if 'logUrl' in payload else '',
+            'logs_bucket': payload['logsBucket'] if 'logsBucket' in payload else '',
+            'project_id': payload['projectId'] if 'projectId' in payload else '',
+            'status': '{}'.format(status),
+            'create_time': payload['createTime'] if 'createTime' in payload else '',
+            'finish_time': payload['finishTime'] if 'finishTime' in payload else '',
+            'start_time': payload['startTime'] if 'startTime' in payload else ''
         })

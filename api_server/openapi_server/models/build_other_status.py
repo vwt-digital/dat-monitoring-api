@@ -15,11 +15,9 @@ class BuildOtherStatus(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, create_time=None, finish_time=None, start_time=None, id=None, project_id=None, results=None, status=None, steps=None, timeout=None):  # noqa: E501
+    def __init__(self, finish_time=None, start_time=None, id=None, project_id=None, status=None, log_url=None):  # noqa: E501
         """BuildOtherStatus - a model defined in OpenAPI
 
-        :param create_time: The create_time of this BuildOtherStatus.  # noqa: E501
-        :type create_time: datetime
         :param finish_time: The finish_time of this BuildOtherStatus.  # noqa: E501
         :type finish_time: datetime
         :param start_time: The start_time of this BuildOtherStatus.  # noqa: E501
@@ -28,48 +26,35 @@ class BuildOtherStatus(Model):
         :type id: str
         :param project_id: The project_id of this BuildOtherStatus.  # noqa: E501
         :type project_id: str
-        :param results: The results of this BuildOtherStatus.  # noqa: E501
-        :type results: List
         :param status: The status of this BuildOtherStatus.  # noqa: E501
         :type status: str
-        :param steps: The steps of this BuildOtherStatus.  # noqa: E501
-        :type steps: object
-        :param timeout: The timeout of this BuildOtherStatus.  # noqa: E501
-        :type timeout: str
+        :param log_url: The log_url of this BuildOtherStatus.  # noqa: E501
+        :type log_url: str
         """
         self.openapi_types = {
-            'create_time': datetime,
             'finish_time': datetime,
             'start_time': datetime,
             'id': str,
             'project_id': str,
-            'results': List,
             'status': str,
-            'steps': object,
-            'timeout': str
+            'log_url': str
         }
 
         self.attribute_map = {
-            'create_time': 'create_time',
             'finish_time': 'finish_time',
             'start_time': 'start_time',
             'id': 'id',
             'project_id': 'project_id',
-            'results': 'results',
             'status': 'status',
-            'steps': 'steps',
-            'timeout': 'timeout'
+            'log_url': 'log_url'
         }
 
-        self._create_time = create_time
         self._finish_time = finish_time
         self._start_time = start_time
         self._id = id
         self._project_id = project_id
-        self._results = results
         self._status = status
-        self._steps = steps
-        self._timeout = timeout
+        self._log_url = log_url
 
     @classmethod
     def from_dict(cls, dikt) -> 'BuildOtherStatus':
@@ -81,29 +66,6 @@ class BuildOtherStatus(Model):
         :rtype: BuildOtherStatus
         """
         return util.deserialize_model(dikt, cls)
-
-    @property
-    def create_time(self):
-        """Gets the create_time of this BuildOtherStatus.
-
-
-        :return: The create_time of this BuildOtherStatus.
-        :rtype: datetime
-        """
-        return self._create_time
-
-    @create_time.setter
-    def create_time(self, create_time):
-        """Sets the create_time of this BuildOtherStatus.
-
-
-        :param create_time: The create_time of this BuildOtherStatus.
-        :type create_time: datetime
-        """
-        if create_time is None:
-            raise ValueError("Invalid value for `create_time`, must not be `None`")  # noqa: E501
-
-        self._create_time = create_time
 
     @property
     def finish_time(self):
@@ -198,29 +160,6 @@ class BuildOtherStatus(Model):
         self._project_id = project_id
 
     @property
-    def results(self):
-        """Gets the results of this BuildOtherStatus.
-
-
-        :return: The results of this BuildOtherStatus.
-        :rtype: List
-        """
-        return self._results
-
-    @results.setter
-    def results(self, results):
-        """Sets the results of this BuildOtherStatus.
-
-
-        :param results: The results of this BuildOtherStatus.
-        :type results: List
-        """
-        if results is None:
-            raise ValueError("Invalid value for `results`, must not be `None`")  # noqa: E501
-
-        self._results = results
-
-    @property
     def status(self):
         """Gets the status of this BuildOtherStatus.
 
@@ -248,47 +187,24 @@ class BuildOtherStatus(Model):
         self._status = status
 
     @property
-    def steps(self):
-        """Gets the steps of this BuildOtherStatus.
+    def log_url(self):
+        """Gets the log_url of this BuildOtherStatus.
 
 
-        :return: The steps of this BuildOtherStatus.
-        :rtype: object
-        """
-        return self._steps
-
-    @steps.setter
-    def steps(self, steps):
-        """Sets the steps of this BuildOtherStatus.
-
-
-        :param steps: The steps of this BuildOtherStatus.
-        :type steps: object
-        """
-        if steps is None:
-            raise ValueError("Invalid value for `steps`, must not be `None`")  # noqa: E501
-
-        self._steps = steps
-
-    @property
-    def timeout(self):
-        """Gets the timeout of this BuildOtherStatus.
-
-
-        :return: The timeout of this BuildOtherStatus.
+        :return: The log_url of this BuildOtherStatus.
         :rtype: str
         """
-        return self._timeout
+        return self._log_url
 
-    @timeout.setter
-    def timeout(self, timeout):
-        """Sets the timeout of this BuildOtherStatus.
+    @log_url.setter
+    def log_url(self, log_url):
+        """Sets the log_url of this BuildOtherStatus.
 
 
-        :param timeout: The timeout of this BuildOtherStatus.
-        :type timeout: str
+        :param log_url: The log_url of this BuildOtherStatus.
+        :type log_url: str
         """
-        if timeout is None:
-            raise ValueError("Invalid value for `timeout`, must not be `None`")  # noqa: E501
+        if log_url is None:
+            raise ValueError("Invalid value for `log_url`, must not be `None`")  # noqa: E501
 
-        self._timeout = timeout
+        self._log_url = log_url

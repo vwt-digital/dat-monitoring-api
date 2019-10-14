@@ -17,7 +17,7 @@ security:
 paths:
   /build-statuses-other:
     get:
-      description: Get a list of all other build statuses
+      description: Get a list of last 20 other build statuses
       operationId: build_statuses_other_get
       responses:
         200:
@@ -30,11 +30,11 @@ paths:
           description: Scheme with multiple other build statuses
         204:
           description: No content
-      summary: Get all other build statuses
+      summary: Get last 20 other build statuses
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
   /build-statuses-other/{status}:
     get:
-      description: Get a list of all other build statuses with a specific status
+      description: Get a list of other build statuses by status, days and max rows
       operationId: build_statuses_other_status_get
       parameters:
       - description: A unique status identifier
@@ -49,6 +49,24 @@ paths:
           - passing
           type: string
         style: simple
+      - description: Total days to include
+        explode: true
+        in: query
+        name: days
+        required: false
+        schema:
+          default: 7
+          type: integer
+        style: form
+      - description: Max rows to return
+        explode: true
+        in: query
+        name: maxRows
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
       responses:
         200:
           content:
@@ -62,7 +80,7 @@ paths:
           description: No content
         404:
           description: Status not of correct type
-      summary: Get all other build statuses by status
+      summary: Get other build statuses by conditions
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
   /build-statuses-triggers:
     get:
@@ -81,37 +99,59 @@ paths:
           description: No content
       summary: Get all build trigger statuses
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses-triggers/branch/{branch}:
+  /error-reporting:
     get:
-      description: Get a list of all build trigger statuses from a specific branch
-      operationId: build_statuses_triggers_branch_branch_get
+      description: Get a list of errors reportings by days and max rows
+      operationId: error_reporting_get
       parameters:
-      - description: A unique branch identifier
-        explode: false
-        in: path
-        name: branch
-        required: true
+      - description: Total days to include
+        explode: true
+        in: query
+        name: days
+        required: false
         schema:
-          enum:
-          - master
-          - develop
-          type: string
-        style: simple
+          default: 7
+          type: integer
+        style: form
+      - description: Max rows to return
+        explode: true
+        in: query
+        name: maxRows
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
       responses:
         200:
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/BuildTriggerStatus'
+                  $ref: '#/components/schemas/ErrorReport'
                 type: array
-          description: Scheme with multiple build trigger statuses
+          description: Scheme with multiple error reportings
         204:
           description: No content
-        404:
-          description: Branch not of correct type
-      summary: Get all build trigger statuses by branch
-      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
+      summary: Get errors reportings by conditions
+      x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
+  /error-reporting/count:
+    get:
+      description: Get a list of projects with errors reportings count in last 7 days
+      operationId: error_reporting_count_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ErrorReportCount'
+                type: array
+          description: Scheme with count of error reportings per project
+        204:
+          description: No content
+      summary: Get count of project errors reportings in last 7 days
+      x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
 components:
   responses:
     BuildTriggerStatuses:
@@ -130,6 +170,22 @@ components:
               $ref: '#/components/schemas/BuildOtherStatus'
             type: array
       description: Scheme with multiple other build statuses
+    ErrorReporting:
+      content:
+        application/json:
+          schema:
+            items:
+              $ref: '#/components/schemas/ErrorReport'
+            type: array
+      description: Scheme with multiple error reportings
+    ErrorReportingCount:
+      content:
+        application/json:
+          schema:
+            items:
+              $ref: '#/components/schemas/ErrorReportCount'
+            type: array
+      description: Scheme with count of error reportings per project
   schemas:
     BuildTriggerStatus:
       example:
@@ -140,6 +196,7 @@ components:
         repo_name: random-repo-name
         status: passing
         updated: 2019-09-01T12:00:00+02:00
+        log_url: https://console.cloud.google.com/gcr/builds/random-project-id
       properties:
         branch:
           type: string
@@ -160,9 +217,12 @@ components:
         updated:
           format: date-time
           type: string
+        log_url:
+          type: string
       required:
       - branch
       - git_source
+      - log_url
       - organization
       - project_id
       - repo_name
@@ -176,6 +236,7 @@ components:
         id: 918d693e-7cc1-45f7-bde2-e00cca32a5b1
         project_id: random-project-id
         status: passing
+        log_url: https://console.cloud.google.com/gcr/builds/918d693e-7cc1-45f7-bde2-e00cca32a5b1
       properties:
         finish_time:
           format: date-time
@@ -194,12 +255,64 @@ components:
           - failing
           - passing
           type: string
+        log_url:
+          type: string
       required:
       - finish_time
       - id
+      - log_url
       - project_id
       - start_time
       - status
+      type: object
+    ErrorReport:
+      example:
+        id: 1a9390e9-4ac5-4527-8e5e-05d2d153ada0
+        log_name: random-log-name
+        receive_timestamp: 2019-09-01T12:00:00+02:00
+        resource: {}
+        trace: random-trace
+      properties:
+        id:
+          type: string
+        log_name:
+          type: string
+        receive_timestamp:
+          format: date-time
+          type: string
+        resource:
+          type: object
+        trace:
+          type: string
+      required:
+      - id
+      - log_name
+      - receive_timestamp
+      - resource
+      - trace
+      type: object
+    ErrorReportCount:
+      example:
+        count: 123
+        latest_updated: 2019-09-01T12:00:00+02:00
+        project_id: random-project-id
+        resource:
+          type: application
+      properties:
+        count:
+          type: integer
+        latest_updated:
+          format: date-time
+          type: string
+        project_id:
+          type: string
+        resource:
+          type: object
+      required:
+      - count
+      - latest_updated
+      - project_id
+      - resource
       type: object
   securitySchemes:
     ApiKeyAuth:
