@@ -2,8 +2,7 @@ import connexion
 import six
 import config
 import datetime
-import pandas
-import json
+import time
 
 from flask import jsonify
 from flask import make_response
@@ -70,15 +69,23 @@ def error_reporting_count_get():  # noqa: E501
 
     # Return results
     if db_data:
-        df = pandas.DataFrame(db_data, columns=['logName', 'receiveTimestamp', 'resource'])
-        df['logName'] = df['logName'].str.split('/', expand = True)[1]
-        df['count'] = df.groupby('logName').transform('count')[['receiveTimestamp']]
-        df = df.sort_values('receiveTimestamp').groupby('logName').apply(lambda x: x.tail(1))
-        df = df.sort_values(by='receiveTimestamp', ascending=False)
+        counted_projects = {}
+        projects_object = []
 
-        df = df.rename(columns={'logName': 'project_id', 'receiveTimestamp': 'latest_updated'})
+        for error in db_data:
+            project_id = error['logName'].split('/')[1]
+            if project_id in counted_projects:
+                counted_projects[project_id]['count'] = counted_projects[project_id]['count'] + 1
+            else:
+                counted_projects[project_id] = {
+                    'count': 1,
+                    'latest_updated': error['receiveTimestamp'],
+                    'resource': error['resource']
+                }
 
-        df_json = df.to_json(orient="records")
-        return json.loads(df_json)
+        for value in counted_projects:
+            projects_object.append(counted_projects[value])
+
+        return projects_object
 
     return make_response(jsonify([]), 204)
