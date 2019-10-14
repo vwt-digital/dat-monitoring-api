@@ -73,7 +73,7 @@ class DBProcessor(object):
             'project_id': payload['projectId'],
             'branch': branch,
             'status': status,
-            'updated': datetime.datetime.utcnow().isoformat(),
+            'updated': datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             'log_url': payload['logUrl'] if 'logUrl' in payload else ''
         })
 

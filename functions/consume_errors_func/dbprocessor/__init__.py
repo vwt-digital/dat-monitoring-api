@@ -23,7 +23,7 @@ class DBProcessor(object):
         entity.update({
             'insertId': payload['insertId'] if 'insertId' in payload else '',
             'logName': payload['logName'] if 'logName' in payload else '',
-            'receiveTimestamp': payload['receiveTimestamp'] if 'receiveTimestamp' in payload else datetime.datetime.utcnow(),
+            'receiveTimestamp': payload['receiveTimestamp'] if 'receiveTimestamp' in payload else datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             'resource': payload['resource'] if 'resource' in payload else '',
             'trace': payload['trace'] if 'trace' in payload else ''
         })
