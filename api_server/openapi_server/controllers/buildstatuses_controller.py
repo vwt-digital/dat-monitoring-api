@@ -54,16 +54,16 @@ def build_statuses_other_get():  # noqa: E501
     """
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_BUILD_STATUSES_KIND)
-    query.order = ['-finishTime']
+    query.order = ['-finish_time']
     db_data = query.fetch(20)
 
     # Return results
     if db_data:
         result = [{
-            'finish_time': status['finishTime'] if 'finishTime' in status else '',
-            'start_time': status['startTime'] if 'startTime' in status else '',
+            'finish_time': status['finish_time'] if 'finish_time' in status else '',
+            'start_time': status['start_time'] if 'start_time' in status else '',
             'id': status['id'] if 'id' in status else '',
-            'project_id': status['projectId'] if 'projectId' in status else '',
+            'project_id': status['project_id'] if 'project_id' in status else '',
             'status': status['status'] if 'status' in status else '',
             'log_url': status['log_url'] if 'log_url' in status else ''
         } for status in db_data]
@@ -102,20 +102,20 @@ def build_statuses_other_status_get(status, days=None, max_rows=None):  # noqa: 
     if status:
         query.add_filter('status', '=', status)
 
-    query.add_filter('finishTime', '>', time_delta)
-    query.order = ['-finishTime']
+    query.add_filter('finish_time', '>', time_delta)
+    query.order = ['-finish_time']
 
     db_data = query.fetch(max_rows)
 
     # Return results
     if db_data:
         result = [{
-            'finish_time': status['finishTime'] if 'finishTime' in status else '',
-            'start_time': status['startTime'] if 'startTime' in status else '',
+            'finish_time': status['finish_time'] if 'finish_time' in status else '',
+            'start_time': status['start_time'] if 'start_time' in status else '',
             'id': status['id'] if 'id' in status else '',
-            'project_id': status['projectId'] if 'projectId' in status else '',
+            'project_id': status['project_id'] if 'project_id' in status else '',
             'status': status['status'] if 'status' in status else '',
-            'log_url': status['logUrl'] if 'logUrl' in status else ''
+            'log_url': status['log_url'] if 'log_url' in status else ''
         } for status in db_data]
         return result
 
