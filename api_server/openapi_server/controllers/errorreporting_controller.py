@@ -78,6 +78,7 @@ def error_reporting_count_get():  # noqa: E501
                 counted_projects[project_id]['count'] = counted_projects[project_id]['count'] + 1
             else:
                 counted_projects[project_id] = {
+                    'project_id': project_id,
                     'count': 1,
                     'latest_updated': error['receiveTimestamp'],
                     'resource': error['resource']
