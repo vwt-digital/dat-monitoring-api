@@ -31,7 +31,7 @@ class DBProcessor(object):
         self.populate_from_payload(entity, payload)
         self.client.put(entity)
 
-        self.populate_count_from_payload(payload)
+        self.populate_count_from_payload(self, payload)
 
     @staticmethod
     def populate_from_payload(entity, payload):
