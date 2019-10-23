@@ -47,7 +47,7 @@ class DBProcessor(object):
         })
 
     @staticmethod
-    def count_fpopulate_count_from_payloadrom_payload(self, payload):
+    def populate_count_from_payload(self, payload):
         error_key_name = '{}_{}'.format(payload['project_id'],
                                         datetime.datetime.utcnow()
                                         .strftime("%Y-%m-%d"))
