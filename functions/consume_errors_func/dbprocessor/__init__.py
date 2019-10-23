@@ -58,6 +58,8 @@ class DBProcessor(object):
 
         if error_count:
             error_count['count'] += 1
+            error_count['updated'] = datetime.datetime.utcnow() \
+                .strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             self.client.put(error_count)
         else:
             error_count = datastore.Entity(key=error_count_key)
@@ -65,5 +67,7 @@ class DBProcessor(object):
                 'count': 1,
                 'date': datetime.datetime.utcnow().strftime("%Y-%m-%d"),
                 'project_id': payload['project_id'],
+                'updated': datetime.datetime.utcnow().strftime(
+                    "%Y-%m-%dT%H:%M:%S.%fZ")
             })
             self.client.put(error_count)
