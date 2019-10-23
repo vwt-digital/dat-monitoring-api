@@ -1,7 +1,7 @@
 import datetime
 import uuid
-import config
 
+import config
 from google.cloud import datastore
 
 
@@ -14,6 +14,8 @@ class DBProcessor(object):
         entity_key_name = str(uuid.uuid4())
         if 'trace' in payload:
             entity_key_name = payload['trace'].split('/')[-1]
+        elif 'insert_id' in payload:
+            entity_key_name = payload['insert_id']
 
         entity_key = self.client.key(config.DB_ERROR_REPORTING_KIND,
                                      entity_key_name)
@@ -66,8 +68,12 @@ class DBProcessor(object):
             error_count['updated'] = datetime.datetime.utcnow() \
                 .strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
-            if entity_key_name not in error_count['error_reporting_keys']:
+            if 'error_reporting_keys' in error_count \
+                    and entity_key_name not in \
+                    error_count['error_reporting_keys']:
                 error_count['error_reporting_keys'].append(entity_key_name)
+            elif 'error_reporting_keys' not in error_count:
+                error_count['error_reporting_keys'] = [entity_key_name]
 
             self.client.put(error_count)
         else:
