@@ -1,17 +1,10 @@
-import connexion
-import six
 import config
 import datetime
-import time
 
 from flask import jsonify
 from flask import make_response
 
 from google.cloud import datastore
-
-from openapi_server.models.error_report import ErrorReport  # noqa: E501
-from openapi_server.models.error_report_count import ErrorReportCount  # noqa: E501
-from openapi_server import util
 
 
 def error_reporting_get(days=None, max_rows=None):  # noqa: E501
@@ -60,35 +53,37 @@ def error_reporting_count_get():  # noqa: E501
 
     :rtype: List[ErrorReportCount]
     """
-    time_delta = datetime.datetime.utcnow() - datetime.timedelta(days=7)
-
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_REPORTING_KIND)
-    query.add_filter('receive_timestamp', '>', time_delta)
-    query.order = ['-receive_timestamp']
-    db_data = query.fetch()
+    query.distinct_on = ['receive_timestamp', 'project_id', 'resource.type']
+    query.order = ['-receive_timestamp', 'project_id', 'resource.type']
+    db_data = query.fetch(5)
 
     # Return results
     if db_data:
-        counted_projects = {}
-        projects_object = []
-
-        for error in db_data:
-            project_id = error['project_id']
-            if project_id in counted_projects:
-                counted_projects[project_id]['count'] = \
-                    counted_projects[project_id]['count'] + 1
-            else:
-                counted_projects[project_id] = {
-                    'project_id': project_id,
-                    'count': 1,
-                    'latest_updated': error['receive_timestamp'],
-                    'resource': error['resource']
-                }
-
-        for value in counted_projects:
-            projects_object.append(counted_projects[value])
-
-        return projects_object
-
+        result = [{
+            'id': error['insert_id'],
+            'log_name': error['log_name'],
+            'project_id': error['project_id'],
+            'receive_timestamp': error['receive_timestamp'],
+            'resource': error['resource'],
+            'trace': error['trace'],
+            'count': '{}'.format(get_project_error_count(
+                error['project_id']))
+        } for error in db_data]
+        return result
     return make_response(jsonify([]), 204)
+
+
+def get_project_error_count(project_id):
+    db_client = datastore.Client()
+    query = db_client.query(kind=config.DB_ERROR_COUNT_KIND)
+    query.add_filter('project_id', '=', project_id)
+    db_data = query.fetch(7)
+
+    total_count = 0
+    if db_data:
+        for error_count in db_data:
+            total_count = total_count + error_count['count']
+
+    return total_count
