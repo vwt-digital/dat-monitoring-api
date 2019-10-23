@@ -33,16 +33,17 @@ def error_reporting_get(days=None, max_rows=None):  # noqa: E501
 
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_REPORTING_KIND)
-    query.add_filter('receiveTimestamp', '>', time_delta)
-    query.order = ['-receiveTimestamp']
+    query.add_filter('receive_timestamp', '>', time_delta)
+    query.order = ['-receive_timestamp']
     db_data = query.fetch(max_rows)
 
     # Return results
     if db_data:
         result = [{
-            'id': ap['insertId'],
-            'log_name': ap['logName'],
-            'receive_timestamp': ap['receiveTimestamp'],
+            'id': ap['insert_id'],
+            'log_name': ap['log_name'],
+            'project_id': ap['project_id'],
+            'receive_timestamp': ap['receive_timestamp'],
             'resource': ap['resource'],
             'trace': ap['trace']
         } for ap in db_data]
@@ -63,8 +64,8 @@ def error_reporting_count_get():  # noqa: E501
 
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_REPORTING_KIND)
-    query.add_filter('receiveTimestamp', '>', time_delta)
-    query.order = ['-receiveTimestamp']
+    query.add_filter('receive_timestamp', '>', time_delta)
+    query.order = ['-receive_timestamp']
     db_data = query.fetch()
 
     # Return results
@@ -73,14 +74,15 @@ def error_reporting_count_get():  # noqa: E501
         projects_object = []
 
         for error in db_data:
-            project_id = error['logName'].split('/')[1]
+            project_id = error['project_id']
             if project_id in counted_projects:
-                counted_projects[project_id]['count'] = counted_projects[project_id]['count'] + 1
+                counted_projects[project_id]['count'] = \
+                    counted_projects[project_id]['count'] + 1
             else:
                 counted_projects[project_id] = {
                     'project_id': project_id,
                     'count': 1,
-                    'latest_updated': error['receiveTimestamp'],
+                    'latest_updated': error['receive_timestamp'],
                     'resource': error['resource']
                 }
 
