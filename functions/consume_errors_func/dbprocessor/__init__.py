@@ -67,13 +67,7 @@ class DBProcessor(object):
             error_count['count'] += 1
             error_count['updated'] = datetime.datetime.utcnow() \
                 .strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-
-            if 'error_reporting_keys' in error_count \
-                    and entity_key_name not in \
-                    error_count['error_reporting_keys']:
-                error_count['error_reporting_keys'].append(entity_key_name)
-            elif 'error_reporting_keys' not in error_count:
-                error_count['error_reporting_keys'] = [entity_key_name]
+            error_count['latest_errorreporting_key'] = entity_key_name
 
             self.client.put(error_count)
         else:
@@ -81,7 +75,7 @@ class DBProcessor(object):
             error_count.update({
                 'count': 1,
                 'date': datetime.datetime.utcnow().strftime("%Y-%m-%d"),
-                'error_reporting_keys': [entity_key_name],
+                'latest_errorreporting_key': entity_key_name,
                 'project_id': payload['project_id'],
                 'updated': datetime.datetime.utcnow().strftime(
                     "%Y-%m-%dT%H:%M:%S.%fZ")
