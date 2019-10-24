@@ -54,36 +54,38 @@ def error_reporting_count_get():  # noqa: E501
     :rtype: List[ErrorReportCount]
     """
     db_client = datastore.Client()
-    query = db_client.query(kind=config.DB_ERROR_REPORTING_KIND)
-    query.distinct_on = ['receive_timestamp', 'project_id', 'resource.type']
-    query.order = ['-receive_timestamp', 'project_id', 'resource.type']
-    db_data = query.fetch(5)
+    query = db_client.query(kind=config.DB_ERROR_COUNT_KIND)
+    query.distinct_on = ['date', 'project_id']
+    query.order = ['-date', 'project_id']
+    db_data = query.fetch()
 
-    # Return results
     if db_data:
-        result = [{
-            'id': error['insert_id'],
-            'log_name': error['log_name'],
-            'project_id': error['project_id'],
-            'receive_timestamp': error['receive_timestamp'],
-            'resource': error['resource'],
-            'trace': error['trace'],
-            'count': '{}'.format(get_project_error_count(
-                error['project_id']))
-        } for error in db_data]
-        return result
+        error_reporting_count = {}
+        error_reporting_keys = []
+
+        for error_count in db_data:
+            if 'count' in error_count:
+                error_reporting_count[error_count['project_id']] = \
+                    error_count['count']
+            if 'error_reporting_keys' in error_count:
+                error_reporting_keys.append(
+                    error_count['error_reporting_keys'][-1])
+
+        error_list = get_latest_error(error_reporting_keys, db_client)
+
+        for error in error_list:
+            error['count'] = error_reporting_count[error['project_id']] \
+                if error['project_id'] in error_reporting_count else ''
+
+        return sorted(error_list, key=lambda i: i['receive_timestamp'],
+                      reverse=True)
     return make_response(jsonify([]), 204)
 
 
-def get_project_error_count(project_id):
-    db_client = datastore.Client()
-    query = db_client.query(kind=config.DB_ERROR_COUNT_KIND)
-    query.add_filter('project_id', '=', project_id)
-    db_data = query.fetch(7)
+def get_latest_error(keys, db_client):
+    error_keys = []
+    for key in keys:
+        error_keys.append(db_client.key(config.DB_ERROR_REPORTING_KIND, key))
 
-    total_count = 0
-    if db_data:
-        for error_count in db_data:
-            total_count = total_count + error_count['count']
+    return db_client.get_multi(error_keys)
 
-    return total_count
