@@ -67,7 +67,7 @@ def error_reporting_count_get():  # noqa: E501
             project_id = error_count['project_id']
 
             if 'count' in error_count:
-                if 'project_id' in error_reporting_count:
+                if project_id in error_reporting_count:
                     error_reporting_count[project_id] = \
                         error_reporting_count[project_id] + \
                         error_count['count']
