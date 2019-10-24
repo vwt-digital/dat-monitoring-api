@@ -64,12 +64,20 @@ def error_reporting_count_get():  # noqa: E501
         error_reporting_keys = []
 
         for error_count in db_data:
+            project_id = error_count['project_id']
+
             if 'count' in error_count:
-                error_reporting_count[error_count['project_id']] = \
-                    error_count['count']
-            if 'error_reporting_keys' in error_count:
+                if 'project_id' in error_reporting_count:
+                    error_reporting_count[project_id] = \
+                        error_reporting_count[project_id] + \
+                        error_count['count']
+                else:
+                    error_reporting_count[project_id] = error_count['count']
+            else:
+                error_reporting_count[project_id] = 0
+            if 'latest_errorreporting_key' in error_count:
                 error_reporting_keys.append(
-                    error_count['error_reporting_keys'][-1])
+                    error_count['latest_errorreporting_key'])
 
         error_list = get_latest_error(error_reporting_keys, db_client)
 
@@ -88,4 +96,3 @@ def get_latest_error(keys, db_client):
         error_keys.append(db_client.key(config.DB_ERROR_REPORTING_KIND, key))
 
     return db_client.get_multi(error_keys)
-
