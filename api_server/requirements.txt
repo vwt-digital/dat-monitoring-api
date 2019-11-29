@@ -12,3 +12,4 @@ google-python-cloud-debugger == 2.13
 pandas == 0.25.1
 Flask-AuditLog==1.0
 Flask-No-Cache==1.0
+Flask-SSLify==0.1.5
