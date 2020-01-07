@@ -1,5 +1,3 @@
-import connexion
-import six
 import config
 import datetime
 
@@ -7,10 +5,6 @@ from flask import jsonify
 from flask import make_response
 
 from google.cloud import datastore
-
-from openapi_server.models.build_other_status import BuildOtherStatus  # noqa: E501
-from openapi_server.models.build_trigger_status import BuildTriggerStatus  # noqa: E501
-from openapi_server import util
 
 
 def build_statuses_triggers_get():  # noqa: E501
@@ -30,14 +24,12 @@ def build_statuses_triggers_get():  # noqa: E501
     # Return results
     if db_data:
         result = [{
-            'branch': status['branch'] if 'branch' in status else '',
-            'git_source': status['git_source'] if 'git_source' in status else '',
-            'organization': status['organization'] if 'organization' in status else '',
-            'project_id': status['project_id'] if 'project_id' in status else '',
-            'repo_name': status['repo_name'] if 'repo_name' in status else '',
-            'status': status['status'] if 'status' in status else '',
-            'updated': status['updated'] if 'updated' in status else '',
-            'log_url': status['log_url'] if 'log_url' in status else ''
+            'branch': status.get('branch', ''),
+            'project_id': status.get('project_id', ''),
+            'repo_name': status.get('repo_name', ''),
+            'status': status.get('status', ''),
+            'updated': status.get('updated', ''),
+            'log_url': status.get('log_url', '')
         } for status in db_data]
         return result
 
@@ -60,12 +52,12 @@ def build_statuses_other_get():  # noqa: E501
     # Return results
     if db_data:
         result = [{
-            'finish_time': status['finish_time'] if 'finish_time' in status else '',
-            'start_time': status['start_time'] if 'start_time' in status else '',
-            'id': status['id'] if 'id' in status else '',
-            'project_id': status['project_id'] if 'project_id' in status else '',
-            'status': status['status'] if 'status' in status else '',
-            'log_url': status['log_url'] if 'log_url' in status else ''
+            'finish_time': status.get('finish_time', ''),
+            'start_time': status.get('start_time', ''),
+            'id': status.get('id', ''),
+            'project_id': status.get('project_id', ''),
+            'status': status.get('status', ''),
+            'log_url': status.get('log_url', '')
         } for status in db_data]
         return result
 
@@ -110,12 +102,12 @@ def build_statuses_other_status_get(status, days=None, max_rows=None):  # noqa: 
     # Return results
     if db_data:
         result = [{
-            'finish_time': status['finish_time'] if 'finish_time' in status else '',
-            'start_time': status['start_time'] if 'start_time' in status else '',
-            'id': status['id'] if 'id' in status else '',
-            'project_id': status['project_id'] if 'project_id' in status else '',
-            'status': status['status'] if 'status' in status else '',
-            'log_url': status['log_url'] if 'log_url' in status else ''
+            'finish_time': status.get('finish_time', ''),
+            'start_time': status.get('start_time', ''),
+            'id': status.get('id', ''),
+            'project_id': status.get('project_id', ''),
+            'status': status.get('status', ''),
+            'log_url': status.get('log_url', '')
         } for status in db_data]
         return result
 
