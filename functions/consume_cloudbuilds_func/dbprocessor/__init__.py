@@ -66,7 +66,7 @@ class DBProcessor(object):
 
         entity.update({
             'repo_name': repo_name,
-            'project_id': payload.get('project_id', ''),
+            'project_id': payload.get('projectId', ''),
             'branch': branch,
             'status': status,
             'updated': datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
