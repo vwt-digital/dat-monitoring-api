@@ -190,8 +190,6 @@ components:
     BuildTriggerStatus:
       example:
         branch: develop
-        git_source: github
-        organization: vwt-digital
         project_id: random-project-id
         repo_name: random-repo-name
         status: passing
@@ -199,10 +197,6 @@ components:
         log_url: https://console.cloud.google.com/gcr/builds/random-project-id
       properties:
         branch:
-          type: string
-        git_source:
-          type: string
-        organization:
           type: string
         project_id:
           type: string
@@ -221,9 +215,7 @@ components:
           type: string
       required:
       - branch
-      - git_source
       - log_url
-      - organization
       - project_id
       - repo_name
       - status

@@ -15,15 +15,11 @@ class BuildTriggerStatus(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, branch=None, git_source=None, organization=None, project_id=None, repo_name=None, status=None, updated=None, log_url=None):  # noqa: E501
+    def __init__(self, branch=None, project_id=None, repo_name=None, status=None, updated=None, log_url=None):  # noqa: E501
         """BuildTriggerStatus - a model defined in OpenAPI
 
         :param branch: The branch of this BuildTriggerStatus.  # noqa: E501
         :type branch: str
-        :param git_source: The git_source of this BuildTriggerStatus.  # noqa: E501
-        :type git_source: str
-        :param organization: The organization of this BuildTriggerStatus.  # noqa: E501
-        :type organization: str
         :param project_id: The project_id of this BuildTriggerStatus.  # noqa: E501
         :type project_id: str
         :param repo_name: The repo_name of this BuildTriggerStatus.  # noqa: E501
@@ -37,8 +33,6 @@ class BuildTriggerStatus(Model):
         """
         self.openapi_types = {
             'branch': str,
-            'git_source': str,
-            'organization': str,
             'project_id': str,
             'repo_name': str,
             'status': str,
@@ -48,8 +42,6 @@ class BuildTriggerStatus(Model):
 
         self.attribute_map = {
             'branch': 'branch',
-            'git_source': 'git_source',
-            'organization': 'organization',
             'project_id': 'project_id',
             'repo_name': 'repo_name',
             'status': 'status',
@@ -58,8 +50,6 @@ class BuildTriggerStatus(Model):
         }
 
         self._branch = branch
-        self._git_source = git_source
-        self._organization = organization
         self._project_id = project_id
         self._repo_name = repo_name
         self._status = status
@@ -99,52 +89,6 @@ class BuildTriggerStatus(Model):
             raise ValueError("Invalid value for `branch`, must not be `None`")  # noqa: E501
 
         self._branch = branch
-
-    @property
-    def git_source(self):
-        """Gets the git_source of this BuildTriggerStatus.
-
-
-        :return: The git_source of this BuildTriggerStatus.
-        :rtype: str
-        """
-        return self._git_source
-
-    @git_source.setter
-    def git_source(self, git_source):
-        """Sets the git_source of this BuildTriggerStatus.
-
-
-        :param git_source: The git_source of this BuildTriggerStatus.
-        :type git_source: str
-        """
-        if git_source is None:
-            raise ValueError("Invalid value for `git_source`, must not be `None`")  # noqa: E501
-
-        self._git_source = git_source
-
-    @property
-    def organization(self):
-        """Gets the organization of this BuildTriggerStatus.
-
-
-        :return: The organization of this BuildTriggerStatus.
-        :rtype: str
-        """
-        return self._organization
-
-    @organization.setter
-    def organization(self, organization):
-        """Sets the organization of this BuildTriggerStatus.
-
-
-        :param organization: The organization of this BuildTriggerStatus.
-        :type organization: str
-        """
-        if organization is None:
-            raise ValueError("Invalid value for `organization`, must not be `None`")  # noqa: E501
-
-        self._organization = organization
 
     @property
     def project_id(self):

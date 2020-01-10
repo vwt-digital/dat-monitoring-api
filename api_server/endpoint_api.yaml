@@ -107,8 +107,6 @@ components:
     BuildTriggerStatus:
       required:
       - branch
-      - git_source
-      - organization
       - project_id
       - repo_name
       - status
@@ -117,10 +115,6 @@ components:
       type: object
       properties:
         branch:
-          type: string
-        git_source:
-          type: string
-        organization:
           type: string
         project_id:
           type: string
@@ -139,8 +133,6 @@ components:
           type: string
       example:
         branch: develop
-        git_source: github
-        organization: vwt-digital
         project_id: random-project-id
         repo_name: random-repo-name
         status: passing

@@ -1,9 +1,8 @@
 from google.cloud import datastore
 import config
-import os
-import uuid
 import datetime
 import json
+
 
 def parse_status(payload):
     status = 'pending'
@@ -24,13 +23,12 @@ class DBProcessor(object):
 
     def process(self, payload):
         if 'status' in payload and \
-            'source' in payload and \
-            'repoSource' in payload['source'] and \
-            'repoName' in payload['source']['repoSource'] and \
-            'branchName' in payload['source']['repoSource']:
+            'substitutions' in payload and \
+            'REPO_NAME' in payload['substitutions'] and \
+                'BRANCH_NAME' in payload['substitutions']:
 
-            repo_name = payload['source']['repoSource'].get('repoName')
-            branch = payload['source']['repoSource'].get('branchName')
+            repo_name = payload['substitutions'].get('REPO_NAME')
+            branch = payload['substitutions'].get('BRANCH_NAME')
             kind = config.DB_BUILD_TRIGGERS_KIND
 
             key = '{}_{}'.format(repo_name, branch)
@@ -59,36 +57,34 @@ class DBProcessor(object):
 
     @staticmethod
     def populate_trigger_from_payload(entity, payload):
-        # Set repo and branch names | repoName = {git_source}_{organization}_{project_id}
-        repo_name = payload['source']['repoSource'].get('repoName')
-        branch = payload['source']['repoSource'].get('branchName')
+        # Set repo and branch name
+        repo_name = payload['substitutions'].get('REPO_NAME', 'N/A')
+        branch = payload['substitutions'].get('BRANCH_NAME', 'N/A')
 
         # Set status to either pending, failing or passing
         status = parse_status(payload)
 
         entity.update({
-            'git_source': repo_name.split('_')[0],
-            'organization': repo_name.split('_')[1],
-            'repo_name': repo_name.split('_')[2],
-            'project_id': payload['projectId'],
+            'repo_name': repo_name,
+            'project_id': payload.get('projectId', ''),
             'branch': branch,
             'status': status,
             'updated': datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-            'log_url': payload['logUrl'] if 'logUrl' in payload else ''
+            'log_url': payload.get('logUrl', '')
         })
 
     @staticmethod
     def populate_other_from_payload(entity, payload):
         # Set status to either pending, failing or passing
-        status = parse_status(payload) if 'status' in payload else '';
+        status = parse_status(payload) if 'status' in payload else ''
 
         entity.update({
-            'id': payload['id'],
-            'log_url': payload['logUrl'] if 'logUrl' in payload else '',
-            'logs_bucket': payload['logsBucket'] if 'logsBucket' in payload else '',
-            'project_id': payload['projectId'] if 'projectId' in payload else '',
+            'id': payload.get('id', ''),
+            'log_url': payload.get('logUrl', ''),
+            'logs_bucket': payload.get('logs_bucket', ''),
+            'project_id': payload.get('project_id', ''),
             'status': '{}'.format(status),
-            'create_time': payload['createTime'] if 'createTime' in payload else '',
-            'finish_time': payload['finishTime'] if 'finishTime' in payload else '',
-            'start_time': payload['startTime'] if 'startTime' in payload else ''
+            'create_time': payload.get('create_time', ''),
+            'finish_time': payload.get('finish_time', ''),
+            'start_time': payload.get('start_time', '')
         })
