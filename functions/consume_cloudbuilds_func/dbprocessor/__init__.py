@@ -81,10 +81,10 @@ class DBProcessor(object):
         entity.update({
             'id': payload.get('id', ''),
             'log_url': payload.get('logUrl', ''),
-            'logs_bucket': payload.get('logs_bucket', ''),
-            'project_id': payload.get('project_id', ''),
+            'logs_bucket': payload.get('logsBucket', ''),
+            'project_id': payload.get('projectId', ''),
             'status': '{}'.format(status),
-            'create_time': payload.get('create_time', ''),
-            'finish_time': payload.get('finish_time', ''),
-            'start_time': payload.get('start_time', '')
+            'create_time': payload.get('createTime', ''),
+            'finish_time': payload.get('finishTime', ''),
+            'start_time': payload.get('startTime', '')
         })
