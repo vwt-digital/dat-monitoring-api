@@ -1,6 +1,7 @@
 import config
 import datetime
 
+import numpy as np
 from flask import jsonify
 from flask import make_response
 
@@ -45,19 +46,26 @@ def error_reporting_get(days=None, max_rows=None):  # noqa: E501
     return make_response(jsonify([]), 204)
 
 
-def error_reporting_count_get():  # noqa: E501
+def error_reporting_count_get(count=None):  # noqa: E501
     """Get count of project errors reportings in last 7 days
 
     Get a list of projects with errors reportings count in last 7 days # noqa: E501
 
+    :param count: Total entities to include
+    :type count: int
 
     :rtype: List[ErrorReportCount]
     """
+
+    if not 1 <= count <= 10:
+        return make_response(
+            jsonify("Parameter 'count' must be between 1 and 10"), 403)
+
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_COUNT_KIND)
-    query.distinct_on = ['date', 'project_id']
-    query.order = ['-date', 'project_id']
-    db_data = query.fetch()
+    query.distinct_on = ['updated', 'project_id']
+    query.order = ['-updated', 'project_id']
+    db_data = query.fetch(count)
 
     if db_data:
         error_reporting_count = {}
@@ -92,7 +100,11 @@ def error_reporting_count_get():  # noqa: E501
 
 def get_latest_error(keys, db_client):
     error_keys = []
-    for key in keys:
-        error_keys.append(db_client.key(config.DB_ERROR_REPORTING_KIND, key))
+    for chunk in np.array_split(keys, 500):
+        error_batch_keys = []
+        for key in chunk:
+            error_batch_keys.append(
+                db_client.key(config.DB_ERROR_REPORTING_KIND, key))
+        error_keys = error_keys + db_client.get_multi(error_batch_keys)
 
-    return db_client.get_multi(error_keys)
+    return error_keys
