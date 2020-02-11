@@ -1,5 +1,7 @@
 import config
 import datetime
+import itertools
+import numpy as np
 
 from flask import jsonify
 from flask import make_response
@@ -45,18 +47,31 @@ def error_reporting_get(days=None, max_rows=None):  # noqa: E501
     return make_response(jsonify([]), 204)
 
 
-def error_reporting_count_get():  # noqa: E501
-    """Get count of project errors reportings in last 7 days
+def error_reporting_count_get(days=None, max_rows=None):  # noqa: E501
+    """Get count of project errors reportings in last x days
 
-    Get a list of projects with errors reportings count in last 7 days # noqa: E501
+    Get a list of projects with errors reportings count in last x days # noqa: E501
 
+    :param days: Total days to include
+    :type days: int
+    :param max_rows: Max rows to return
+    :type max_rows: int
 
     :rtype: List[ErrorReportCount]
     """
+
+    if days < 1 or max_rows < 1:
+        return make_response(
+            jsonify("Parameters must be more than 0"), 403)
+
+    time_delta = (datetime.datetime.utcnow() - datetime.timedelta(
+        days=days)).strftime('%Y-%m-%d')
+
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_COUNT_KIND)
-    query.distinct_on = ['date', 'project_id']
-    query.order = ['-date', 'project_id']
+    query.add_filter('date', '>=', time_delta)
+    query.distinct_on = ['date', 'updated', 'project_id']
+    query.order = ['-date', '-updated', 'project_id']
     db_data = query.fetch()
 
     if db_data:
@@ -68,21 +83,24 @@ def error_reporting_count_get():  # noqa: E501
 
             if 'count' in error_count:
                 if project_id in error_reporting_count:
-                    error_reporting_count[project_id] = \
-                        error_reporting_count[project_id] + \
+                    error_reporting_count[project_id]['count'] = \
+                        error_reporting_count[project_id]['count'] + \
                         error_count['count']
                 else:
-                    error_reporting_count[project_id] = error_count['count']
-            else:
-                error_reporting_count[project_id] = 0
-            if 'latest_errorreporting_key' in error_count:
+                    error_reporting_count[project_id] = {
+                        'count': error_count['count'],
+                        'latest_errorreporting_key': error_count['latest_errorreporting_key']
+                    }
+
+        for key in itertools.islice(error_reporting_count, max_rows):
+            if 'latest_errorreporting_key' in error_reporting_count[key]:
                 error_reporting_keys.append(
-                    error_count['latest_errorreporting_key'])
+                    error_reporting_count[key]['latest_errorreporting_key'])
 
         error_list = get_latest_error(error_reporting_keys, db_client)
 
         for error in error_list:
-            error['count'] = error_reporting_count[error['project_id']] \
+            error['count'] = error_reporting_count[error['project_id']]['count'] \
                 if error['project_id'] in error_reporting_count else ''
 
         return sorted(error_list, key=lambda i: i['receive_timestamp'],
@@ -92,7 +110,11 @@ def error_reporting_count_get():  # noqa: E501
 
 def get_latest_error(keys, db_client):
     error_keys = []
-    for key in keys:
-        error_keys.append(db_client.key(config.DB_ERROR_REPORTING_KIND, key))
+    for chunk in np.array_split(keys, 500):
+        error_batch_keys = []
+        for key in chunk:
+            error_batch_keys.append(
+                db_client.key(config.DB_ERROR_REPORTING_KIND, key))
+        error_keys = error_keys + db_client.get_multi(error_batch_keys)
 
-    return db_client.get_multi(error_keys)
+    return error_keys

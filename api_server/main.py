@@ -12,6 +12,7 @@ except ImportError:
     pass
 
 app = openapi_server.app
+flaskapp = app.app
 
 logging.basicConfig(level=logging.INFO)
 
