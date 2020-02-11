@@ -100,17 +100,23 @@ paths:
         204:
           description: No content
         403:
-          description: Parameter 'count' must be between 1 and 10
-      summary: Get count of project errors reportings in last 7 days
-      description: Get a list of projects with errors reportings count in last 7 days
+          description: Parameters must be more than 0
+      summary: Get count of project errors reportings in last x days
+      description: Get a list of projects with errors reportings count in last x days
       parameters:
-        - name: count
+        - name: days
           in: query
-          description: Total entities to include
+          description: Total days to include
           schema:
             type: integer
             minimum: 1
-            maximum: 10
+            default: 7
+        - name: maxRows
+          in: query
+          description: Max rows to return
+          schema:
+            type: integer
+            minimum: 1
             default: 5
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
 components:
