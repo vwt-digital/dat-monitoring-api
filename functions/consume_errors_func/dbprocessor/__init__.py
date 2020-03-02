@@ -1,5 +1,6 @@
 import datetime
 import uuid
+import json
 
 import config
 from google.cloud import datastore
@@ -41,15 +42,25 @@ class DBProcessor(object):
 
     @staticmethod
     def populate_from_payload(self, entity, payload):
+        text_payload = ''
+        if 'textPayload' in payload:
+            try:
+                text_payload = json.loads(payload['textPayload'])
+            except ValueError:
+                pass
+            else:
+                text_payload = payload['textPayload']
+
         entity.update({
             'insert_id': payload['insertId'] if 'insertId' in payload else '',
             'project_id': payload['project_id'],
             'log_name': payload['logName'] if 'logName' in payload else '',
-            'receive_timestamp': payload['receiveTimestamp']
-            if 'receiveTimestamp' in payload else
+            'receive_timestamp': payload['receiveTimestamp'] if
+            'receiveTimestamp' in payload else
             datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             'resource': payload['resource'] if 'resource' in payload else '',
-            'trace': payload['trace'] if 'trace' in payload else ''
+            'trace': payload['trace'] if 'trace' in payload else '',
+            'text_payload': text_payload
         })
         self.client.put(entity)
 
@@ -81,3 +92,9 @@ class DBProcessor(object):
                     "%Y-%m-%dT%H:%M:%S.%fZ")
             })
             self.client.put(error_count)
+
+
+if __name__ == '__main__':
+    with open('payload.json', 'r') as json_file:
+        in_payload = json.load(json_file)
+        DBProcessor().process(in_payload)
