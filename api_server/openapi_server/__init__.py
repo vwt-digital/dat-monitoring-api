@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-from threading import Thread
+import os
 
 import connexion
 from flask_cors import CORS
-from flask import request
+import config
 
 from openapi_server import encoder
 
@@ -12,4 +12,7 @@ app.app.json_encoder = encoder.JSONEncoder
 app.add_api('openapi.yaml',
             arguments={'title': 'Monitoring'},
             pythonic_params=True)
-CORS(app.app)
+if 'GAE_INSTANCE' in os.environ:
+    CORS(app.app, origins=config.ORIGINS)
+else:
+    CORS(app.app)
