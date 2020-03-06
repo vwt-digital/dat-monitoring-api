@@ -4,6 +4,9 @@
 
 # TODO: Expand description for config. (additional fields)
 
+# UNCOMMENT IF USING MAIL NOTIFICATION
+# MAIL_SUBJECT_ADDRESS = "subject@example.com"
+# MAIL_SENDER_ADDRESS = "sender@example.com"
 
 NOTIFICATION_CONFIG = [{
     "active": True,

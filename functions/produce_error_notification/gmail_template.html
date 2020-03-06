@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>$context.title</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet">
+
+    <style type="text/css">
+        body{font-family:'Roboto Mono',sans-serif;font-size:14px}h1{font-size:30px;font-weigh:bold;text-transform:uppercase;margin:0}h2{font-size:16px;text-transform:uppercase;margin:0}.content-container{border:1px solid #e0e0e0;background-color:#fff;padding:20px}.content-block{display:table;width:100%;padding:15px;border-radius:10px;box-sizing:border-box}.content-block:not(:last-child){margin-bottom:20px}.content-item{padding:10px 0;display:table;width:100%;float:left}.content-label{font-size:10px;text-transform:uppercase;margin-right:10px}.content-text{padding:10px;background-color:#f8f9fa;border-radius:5px;font-weight:700;box-sizing:border-box}.content-label,.content-text{display:table;float:left;width:100%}.content-block:nth-child(odd){background-color:#f8f9fa}.content-block:nth-child(odd) .content-text{background-color:#fff}
+    </style>
+</head>
+<body style="margin: 0; padding: 0;">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fafafa;">
+    <tr>
+        <td>
+            <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="padding: 10px 20px 30px;">
+                <tr>
+                    <td style="padding: 20px 0; color: #153643; font-size: 28px; font-weight: bold;">
+                        <img src="https://www.gstatic.com/devrel-devsite/prod/ve2ae1395f351e38dc0b3037132204261d76b8f1c638764d7fd2c2fbb865782fc/cloud/images/cloud-logo.svg"
+                             alt="Google Cloud Platform logo" height="30" style="display: block;"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                                <td style="color: #153643; font-size: 24px;">
+                                    <h1>$context.title</h1>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top: 20px; color: #153643; font-size: 16px; line-height: 20px;">
+                                    <div class="content-container">
+                                        #if( $context.type == "str" )
+                                            <div class="content-block">
+                                                <label for="str-message" class="content-label">
+                                                    Error message
+                                                </label>
+                                                <span id="str-message" class="content-text">
+                                                    $context.message
+                                                </span>
+                                            </div>
+                                        #else
+                                            #foreach( $section in $context.sections )
+                                                <div class="content-block">
+                                                    <h2>$section.title</h2>
+                                                    #foreach( $key in $section.fields )
+                                                        <div class="content-item">
+                                                            <label for="message" class="content-label">
+                                                                $key
+                                                            </label>
+                                                            <span id="message" class="content-text">
+                                                                $section.fields[$key]
+                                                            </span>
+                                                        </div>
+                                                    #end
+                                                </div>
+                                            #end
+                                        #end
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 20px 10px;">
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                                <td style="color: #008bb8; font-size: 10px; text-transform: uppercase; font-weight: bold;" width="100%">
+                                    &copy; VolkerWessels Telecom Digital, Amersfoort<br/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
