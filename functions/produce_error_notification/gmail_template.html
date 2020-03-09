@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet">
 
     <style type="text/css">
-        body{font-family:'Roboto Mono',sans-serif;font-size:14px}h1{font-size:30px;font-weigh:bold;text-transform:uppercase;margin:0}h2{font-size:16px;text-transform:uppercase;margin:0}.content-container{border:1px solid #e0e0e0;background-color:#fff;padding:20px}.content-block{display:table;width:100%;padding:15px;border-radius:10px;box-sizing:border-box}.content-block:not(:last-child){margin-bottom:20px}.content-item{padding:10px 0;display:table;width:100%;float:left}.content-label{font-size:10px;text-transform:uppercase;margin-right:10px}.content-text{padding:10px;background-color:#f8f9fa;border-radius:5px;font-weight:700;box-sizing:border-box}.content-label,.content-text{display:table;float:left;width:100%}.content-block:nth-child(odd){background-color:#f8f9fa}.content-block:nth-child(odd) .content-text{background-color:#fff}
+        body{font-family:'Roboto Mono',sans-serif;font-size:14px}h1{font-size:20px;font-weigh:bold;text-transform:uppercase;margin:0}h2{font-size:16px;text-transform:uppercase;margin:0}.w-75{width:75%;display:table;float:left;box-sizing:border-box}.w-50{width:50%;display:table;float:left;box-sizing:border-box}.w-25{width:25%;display:table;float:left;box-sizing:border-box}.logo,.title{height:60px;padding:10px 0}.title{padding:17px 0}.logo img{float:right;display:table;max-width:100%}.content-container{border:1px solid #e0e0e0;background-color:#fff;padding:10px;margin-bottom:10px}.content-block{display:table;width:100%;padding:10px;box-sizing:border-box}.content-block:not(:last-child){margin-bottom:10px}.content-item{padding:5px 0;padding-right:5px;display:table;width:calc(100% / 3);box-sizing:border-box;float:left}.content-label{font-size:10px;text-transform:uppercase;margin-right:10px}.content-text{padding:10px;background-color:#f8f9fa;border-radius:5px;font-weight:700;font-size:12px;box-sizing:border-box}.content-label,.content-text{display:table;float:left;width:100%;word-break:break-word;overflow-wrap:break-word}.content-block:nth-child(2n+1){background-color:#f8f9fa}.content-block:nth-child(2n+1) .content-text{background-color:#fff}
     </style>
 </head>
 <body style="margin: 0; padding: 0;">
@@ -18,59 +18,63 @@
         <td>
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="padding: 10px 20px 30px;">
                 <tr>
-                    <td style="padding: 20px 0; color: #153643; font-size: 28px; font-weight: bold;">
-                        <img src="https://www.gstatic.com/devrel-devsite/prod/ve2ae1395f351e38dc0b3037132204261d76b8f1c638764d7fd2c2fbb865782fc/cloud/images/cloud-logo.svg"
-                             alt="Google Cloud Platform logo" height="30" style="display: block;"/>
+                    <td style="padding-bottom: 20px;">
+                        <div class="title w-75">
+                            <h1>$context.title</h1>
+                        </div>
+                        <div class="logo w-25">
+                            <img src="https://monitoring.app.vwtelecom.com/assets/images/volkerwessels_telecom_wide_gray.png"
+                                 alt="VolkerWessels Telecom VWT logo" height="40" style="display: block;"/>
+                        </div>
                     </td>
                 </tr>
                 <tr>
                     <td>
                         <table border="0" cellpadding="0" cellspacing="0" width="100%">
                             <tr>
-                                <td style="color: #153643; font-size: 24px;">
-                                    <h1>$context.title</h1>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding-top: 20px; color: #153643; font-size: 16px; line-height: 20px;">
-                                    <div class="content-container">
-                                        #if( $context.type == "str" )
-                                            <div class="content-block">
-                                                <label for="str-message" class="content-label">
-                                                    Error message
-                                                </label>
-                                                <span id="str-message" class="content-text">
-                                                    $context.message
-                                                </span>
-                                            </div>
-                                        #else
-                                            #foreach( $section in $context.sections )
+                                <td>
+                                    #set( $count = 0 )
+                                    #foreach( $message in $context.content )
+                                        <div class="content-container">
+                                            #if( $message.type == "str" )
                                                 <div class="content-block">
-                                                    <h2>$section.title</h2>
-                                                    #foreach( $key in $section.fields )
+                                                    <label for="$count-str-message" class="content-label">
+                                                        Error message
+                                                    </label>
+                                                    <span id="$count-str-message" class="content-text">
+                                                        $message.message
+                                                    </span>
+                                                </div>
+                                            #else
+                                                #foreach( $section in $message.sections )
+                                                    <div class="content-block">
+                                                        <h2>$section.title</h2>
+                                                        #foreach( $key in $section.fields )
                                                         <div class="content-item">
-                                                            <label for="message" class="content-label">
+                                                            <label for="$count-$key" class="content-label">
                                                                 $key
                                                             </label>
-                                                            <span id="message" class="content-text">
+                                                            <span id="$count-$key" class="content-text">
                                                                 $section.fields[$key]
                                                             </span>
                                                         </div>
-                                                    #end
-                                                </div>
+                                                        #end
+                                                    </div>
+                                                #end
                                             #end
-                                        #end
-                                    </div>
+                                        </div>
+                                        #set( $count = $count + 1 )
+                                    #end
                                 </td>
                             </tr>
                         </table>
                     </td>
                 </tr>
                 <tr>
-                    <td style="padding: 20px 10px;">
+                    <td style="padding: 10px;">
                         <table border="0" cellpadding="0" cellspacing="0" width="100%">
                             <tr>
-                                <td style="color: #008bb8; font-size: 10px; text-transform: uppercase; font-weight: bold;" width="100%">
+                                <td style="font-size: 10px; text-transform: uppercase; font-weight: bold;" width="100%">
                                     &copy; VolkerWessels Telecom Digital, Amersfoort<br/>
                                 </td>
                             </tr>

@@ -23,7 +23,6 @@ class Notification(object):
         pass
 
     def process(self, message, properties):
-        logging.info("Processing message {}".format(json.dumps(message)))
         body = None
 
         if isinstance(message, dict):
@@ -31,8 +30,9 @@ class Notification(object):
         elif isinstance(message, str):
             body = self.create_message_from_str(message)
 
-        body['title'] = properties.get('title', 'Error notification')
+        return body
 
+    def send_notification(self, body, properties):
         if 'type' in properties and properties['type'] == 'mail':
             GmailClient().send_mail(body, properties)
         else:
@@ -93,7 +93,7 @@ class GmailClient(object):
             with open("gmail_template.html", "r") as mail_template:
                 template_html = mail_template.read()
                 mail_template.close()
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             logging.error('Mail template file not found')
             return False
 
@@ -189,8 +189,8 @@ def error_to_notification(request):
             elif not notification['active']:
                 logging.info('Current notification is disabled')
                 continue
-            elif not 'type' in notification['database']:
-                logging.info('No database type is specified')
+            elif 'type' not in notification['database']:
+                logging.error('No database type is specified')
                 continue
 
             data_object = None
@@ -203,13 +203,21 @@ def error_to_notification(request):
             if not data_object:
                 continue
             else:
+                data_object_list = {
+                    'title': notification['notification'].get('title', 'Error notification'),
+                    'content': []
+                }
+
                 for row in data_object:
                     data_object = format_data(row, notification['message_field'])
 
                     if not data_object:
                         continue
 
-                    Notification().process(data_object, notification['notification'])
+                    body = Notification().process(data_object, notification['notification'])
+                    data_object_list['content'].append(body)
+
+                Notification().send_notification(data_object_list, notification['notification'])
 
 
 if __name__ == '__main__':
