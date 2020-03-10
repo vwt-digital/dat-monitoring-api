@@ -22,7 +22,7 @@ class Notification(object):
     def __init__(self):
         pass
 
-    def process(self, message, properties):
+    def process(self, message):
         body = None
 
         if isinstance(message, dict):
@@ -181,8 +181,8 @@ def validate_dict_keys(keys, input_dict):
 
 def error_to_notification(request):
     logging.getLogger().setLevel(logging.INFO)
-    if request.method == 'POST' and request.args and "interval" in request.args and \
-            hasattr(config, 'NOTIFICATION_CONFIG'):
+
+    if hasattr(config, 'NOTIFICATION_CONFIG') and len(config.NOTIFICATION_CONFIG) > 0:
         for notification in config.NOTIFICATION_CONFIG:
             if not validate_dict_keys(("active", "id", "message_field", "database", "notification"), notification):
                 continue
@@ -196,7 +196,7 @@ def error_to_notification(request):
             data_object = None
 
             if notification['database']['type'] == 'datastore':
-                data_object = Datastore().retrieve_data(notification['database'], request.args['interval'])
+                data_object = Datastore().retrieve_data(notification['database'], request.args.get('interval', None))
 
             logging.info("Found {} errors for notification '{}'".format(len(data_object), notification['id']))
 
@@ -214,10 +214,12 @@ def error_to_notification(request):
                     if not data_object:
                         continue
 
-                    body = Notification().process(data_object, notification['notification'])
+                    body = Notification().process(data_object)
                     data_object_list['content'].append(body)
 
                 Notification().send_notification(data_object_list, notification['notification'])
+    else:
+        logging.info('No config found')
 
 
 if __name__ == '__main__':

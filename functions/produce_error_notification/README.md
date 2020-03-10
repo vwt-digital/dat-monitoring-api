@@ -1,7 +1,7 @@
 # Monitoring error notifier
 This function creates a notification based on configuration and logging.
 
-# Configuration
+## Configuration
 This function relies on configuration to send messages based on filters. A [list of notifications](#notification-list-structure) can be specified within the `config.py` (see [config.example.py](config.example.py) for an example) that each has an influence on the outcome. 
 
 The fields required within a notification dictionary are:
@@ -109,6 +109,7 @@ Make sure the required files are copied into the directory before deployment: `c
 ## Triggering the function
 The function is triggered via a Google Cloud Scheduler and can be deployed using a `cloudbuild.yaml`. To deploy this function the next Cloud Build step can be specified within a `cloudbuild.yaml` (see [cloudbuild.example.yaml](cloudbuild.example.yaml) for an example).
 ~~~yaml
+gcloud scheduler jobs delete ${PROJECT_ID}-errornotifier-job --quiet || true
 gcloud scheduler jobs create http ${PROJECT_ID}-errornotifier-job \
   --schedule="0 * * * *" \
   --uri=https://europe-west1-${PROJECT_ID}.cloudfunctions.net/${PROJECT_ID}-error-notifier-func/ \
@@ -120,13 +121,14 @@ gcloud scheduler jobs create http ${PROJECT_ID}-errornotifier-job \
 Within the function a standard interval of `60m` is specified, and used when declaring the optional `database` attribute `time_field` ([see explanation](#optional-fields)). To use a different interval, a body can be send with the Cloud Scheduler specifying the interval in minutes where the scheduler will run every two hours as described below:
 ~~~yaml
 --schedule="0 */2 * * *"
---message-body={"interval": 120}
+--message-body="{\"interval\": 120}"
 ~~~
 
 ##### IAM-policy
 To make sure the Cloud Scheduler can invoke the function, the next script can be used to allow this:
 ~~~yaml
 gcloud functions add-iam-policy-binding ${PROJECT_ID}-error-notifier-func \
+  --region=europe-west1 \
   --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
   --role="roles/cloudfunctions.invoker"
 ~~~ 
