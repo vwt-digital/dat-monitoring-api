@@ -140,6 +140,9 @@ class Datastore(object):
             logging.error('No filters found for this notification')
             return None
 
+        if not interval:
+            interval = 60
+
         time_delta = (datetime.datetime.utcnow() - datetime.timedelta(minutes=interval)).strftime(
             '%Y-%m-%dT%H:00:00.000000000Z')
 
