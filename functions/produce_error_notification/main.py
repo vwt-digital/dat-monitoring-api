@@ -148,6 +148,7 @@ class Datastore(object):
 
         try:
             query = self.ds_client.query(kind=properties['kind'])
+
             for key in properties['filters']:
                 query.add_filter(key, '=', properties['filters'][key])
 
@@ -212,6 +213,9 @@ def error_to_notification(request):
                 }
 
                 for row in data_object:
+                    if notification['message_field'] not in row:
+                        continue
+
                     data_object = format_data(row, notification['message_field'])
 
                     if not data_object:
@@ -220,7 +224,11 @@ def error_to_notification(request):
                     body = Notification().process(data_object)
                     data_object_list['content'].append(body)
 
-                Notification().send_notification(data_object_list, notification['notification'])
+                if len(data_object_list['content']) > 0:
+                    logging.info("Message sent with {} errors for '{}'".format(len(data_object_list), notification['id']))
+                    Notification().send_notification(data_object_list, notification['notification'])
+                else:
+                    logging.info('No notification was sent')
     else:
         logging.info('No config found')
 
