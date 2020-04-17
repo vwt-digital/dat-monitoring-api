@@ -208,3 +208,4 @@ class BuildOtherStatus(Model):
             raise ValueError("Invalid value for `log_url`, must not be `None`")  # noqa: E501
 
         self._log_url = log_url
+# flake8: noqa

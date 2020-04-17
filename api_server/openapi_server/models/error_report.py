@@ -176,3 +176,4 @@ class ErrorReport(Model):
             raise ValueError("Invalid value for `trace`, must not be `None`")  # noqa: E501
 
         self._trace = trace
+# flake8: noqa
