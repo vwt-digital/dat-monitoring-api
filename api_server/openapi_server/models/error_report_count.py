@@ -148,3 +148,4 @@ class ErrorReportCount(Model):
             raise ValueError("Invalid value for `resource`, must not be `None`")  # noqa: E501
 
         self._resource = resource
+# flake8: noqa

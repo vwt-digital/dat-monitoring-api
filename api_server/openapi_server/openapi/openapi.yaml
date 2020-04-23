@@ -79,6 +79,8 @@ paths:
           description: No content
         "404":
           description: Status not of correct type
+        "400":
+          description: Bad request
       summary: Get other build statuses by conditions
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
   /build-statuses-triggers:

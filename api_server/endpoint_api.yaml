@@ -20,32 +20,34 @@ paths:
   /build-statuses-triggers:
     get:
       responses:
-        200:
+        "200":
           $ref: '#/components/responses/BuildTriggerStatuses'
-        204:
+        "204":
           description: No content
       summary: Get all build trigger statuses
       description: Get a list of all build trigger statuses
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses-other:
+  /build-statuses-others:
     get:
       responses:
-        200:
+        "200":
           $ref: '#/components/responses/BuildOtherStatuses'
-        204:
+        "204":
           description: No content
       summary: Get last 20 other build statuses
       description: Get a list of last 20 other build statuses
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses-other/{status}:
+  /build-statuses-others/{status}:
     get:
       responses:
-        200:
+        "200":
           $ref: '#/components/responses/BuildOtherStatuses'
-        204:
+        "204":
           description: No content
-        404:
+        "404":
           description: Status not of correct type
+        "400":
+          description: Bad request
       summary: Get other build statuses by conditions
       description: Get a list of other build statuses by status, days and max rows
       parameters:
@@ -69,12 +71,12 @@ paths:
               type: integer
               default: 20
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /error-reporting:
+  /error-reports:
     get:
       responses:
-        200:
+        "200":
           $ref: '#/components/responses/ErrorReporting'
-        204:
+        "204":
           description: No content
       summary: Get errors reportings by conditions
       description: Get a list of errors reportings by days and max rows
@@ -92,14 +94,14 @@ paths:
               type: integer
               default: 20
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
-  /error-reporting/count:
+  /error-reports/counts:
     get:
       responses:
-        200:
+        "200":
           $ref: '#/components/responses/ErrorReportingCount'
-        204:
+        "204":
           description: No content
-        403:
+        "403":
           description: Parameters must be more than 0
       summary: Get count of project errors reportings in last x days
       description: Get a list of projects with errors reportings count in last x days
