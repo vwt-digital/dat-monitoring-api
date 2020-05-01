@@ -12,8 +12,8 @@ info:
     name: GNU GPLv3
     url: 'https://www.gnu.org/licenses/gpl.txt'
 servers:
-- url: 'https://PROJECT_ID.appspot.com/'
-  description: ""
+  - url: 'https://PROJECT_ID.appspot.com/'
+    description: ""
 security:
   - ApiKeyAuth: []
 paths:
@@ -54,22 +54,22 @@ paths:
         - name: status
           in: path
           description: A unique status identifier
-          required: True
+          required: true
           schema:
-              type: string
-              enum: [failing, pending, passing]
+            type: string
+            enum: [failing, pending, passing]
         - name: days
           in: query
           description: Total days to include
           schema:
-              type: integer
-              default: 7
+            type: integer
+            default: 7
         - name: maxRows
           in: query
           description: Max rows to return
           schema:
-              type: integer
-              default: 20
+            type: integer
+            default: 20
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
   /error-reports:
     get:
@@ -85,14 +85,14 @@ paths:
           in: query
           description: Total days to include
           schema:
-              type: integer
-              default: 7
+            type: integer
+            default: 7
         - name: maxRows
           in: query
           description: Max rows to return
           schema:
-              type: integer
-              default: 20
+            type: integer
+            default: 20
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
   /error-reports/counts:
     get:
@@ -125,12 +125,12 @@ components:
   schemas:
     BuildTriggerStatus:
       required:
-      - branch
-      - project_id
-      - repo_name
-      - status
-      - updated
-      - log_url
+        - branch
+        - project_id
+        - repo_name
+        - status
+        - updated
+        - log_url
       type: object
       properties:
         branch:
@@ -141,9 +141,9 @@ components:
           type: string
         status:
           enum:
-          - pending
-          - failing
-          - passing
+            - pending
+            - failing
+            - passing
           type: string
         updated:
           format: date-time
@@ -159,12 +159,12 @@ components:
         log_url: https://console.cloud.google.com/gcr/builds/random-project-id
     BuildOtherStatus:
       required:
-      - finish_time
-      - start_time
-      - id
-      - project_id
-      - status
-      - log_url
+        - finish_time
+        - start_time
+        - id
+        - project_id
+        - status
+        - log_url
       type: object
       properties:
         finish_time:
@@ -180,9 +180,9 @@ components:
           type: string
         status:
           enum:
-          - pending
-          - failing
-          - passing
+            - pending
+            - failing
+            - passing
           type: string
         log_url:
           type: string
@@ -195,11 +195,11 @@ components:
         log_url: https://console.cloud.google.com/gcr/builds/918d693e-7cc1-45f7-bde2-e00cca32a5b1
     ErrorReport:
       required:
-      - id
-      - log_name
-      - receive_timestamp
-      - resource
-      - trace
+        - id
+        - log_name
+        - receive_timestamp
+        - resource
+        - trace
       type: object
       properties:
         id:
@@ -221,10 +221,10 @@ components:
         trace: random-trace
     ErrorReportCount:
       required:
-      - count
-      - latest_updated
-      - project_id
-      - resource
+        - count
+        - latest_updated
+        - project_id
+        - resource
       type: object
       properties:
         count:
@@ -240,7 +240,7 @@ components:
         count: 123
         latest_updated: 2019-09-01T12:00:00+02:00
         project_id: random-project-id
-        resource: { 'type': 'application' }
+        resource: {'type':'application'}
   responses:
     BuildTriggerStatuses:
       description: Scheme with multiple build trigger statuses
