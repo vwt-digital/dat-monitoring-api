@@ -5,6 +5,7 @@ ignore: |
   api_server/openapi_server/openapi/openapi.yaml
   api_server/.travis.tml
   .travis.yml
+  .yamllint
 
 rules:
   line-length:
