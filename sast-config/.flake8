@@ -1,0 +1,6 @@
+[flake8]
+exclude = 
+	api_server/setup.py
+	api_server/openapi_server/test/test_default_controller.py:
+	api_server/openapi_server/test/test_default_controller.py
+max-line-length=139

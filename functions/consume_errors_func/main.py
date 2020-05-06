@@ -1,14 +1,9 @@
-import inspect
 import logging
 import json
 import base64
 import os
 
-from google.auth.transport import requests
-
 from dbprocessor import DBProcessor
-
-import config
 
 parser = DBProcessor()
 verification_token = os.environ['PUBSUB_VERIFICATION_TOKEN']
