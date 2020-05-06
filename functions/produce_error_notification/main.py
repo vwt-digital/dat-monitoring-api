@@ -1,21 +1,24 @@
 import config
 import sys
-import os
 import json
 import base64
 import logging
 import requests
 import datetime
+import google
 import googleapiclient.discovery
 import airspeed
 
 from operator import itemgetter
 from google.api_core import exceptions
 from google.cloud import datastore
-from google.cloud import kms_v1
+from google.auth import iam
+from google.auth.transport import requests as gcp_requests
 from google.oauth2 import service_account
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+TOKEN_URI = 'https://accounts.google.com/o/oauth2/token'  # nosec
 
 
 class Notification(object):
@@ -68,20 +71,26 @@ class Notification(object):
 
 class GmailClient(object):
     def __init__(self):
-        if not hasattr(config, 'MAIL_SUBJECT_ADDRESS') or not hasattr(config, 'MAIL_SENDER_ADDRESS'):
+        if not hasattr(config, 'MAIL_SUBJECT_ADDRESS') or not hasattr(config, 'MAIL_SENDER_ADDRESS') or \
+                not hasattr(config, 'MAIL_SERVICE_ACCOUNT'):
             logging.error("Mail configuration missing")
             sys.exit(1)
 
-        kms_client = kms_v1.KeyManagementServiceClient()
-        pk_passphrase = kms_client.crypto_key_path_path(os.environ["GCP_PROJECT"], "europe",
-                                                        os.environ["GCP_PROJECT"] + "-keyring", "gmail-sdk-key")
-        decrypt_response = kms_client.decrypt(pk_passphrase, open(f"gmailsdk_credentials.enc", "rb").read())
+        credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/iam'])
 
-        gmailsdk_credentials = decrypt_response.plaintext.decode("utf-8").replace("\n", "")
+        try:
+            request = gcp_requests.Request()
+            credentials.refresh(request)
 
-        delegated_credentials = service_account.Credentials.from_service_account_info(
-            json.loads(gmailsdk_credentials), scopes=["https://www.googleapis.com/auth/gmail.send"],
-            subject=config.MAIL_SUBJECT_ADDRESS)
+            signer = iam.Signer(request, credentials, config.MAIL_SERVICE_ACCOUNT)
+            delegated_credentials = service_account.Credentials(
+                signer=signer,
+                service_account_email=config.MAIL_SERVICE_ACCOUNT,
+                token_uri=TOKEN_URI,
+                scopes=["https://www.googleapis.com/auth/gmail.send"],
+                subject=config.MAIL_SUBJECT_ADDRESS)
+        except Exception:
+            raise
 
         self.gmail_service = googleapiclient.discovery.build("gmail", "v1", credentials=delegated_credentials,
                                                              cache_discovery=False)

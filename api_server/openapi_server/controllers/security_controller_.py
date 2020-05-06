@@ -1,9 +1,8 @@
-import config
 import os
 import io
-import json
 
 from google.cloud import kms_v1
+
 
 def decrypt():
     project_id = os.environ['GOOGLE_CLOUD_PROJECT']

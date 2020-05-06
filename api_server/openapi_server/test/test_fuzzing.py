@@ -1,5 +1,3 @@
-import adal
-
 import config
 from openapi3_fuzzer import FuzzIt
 from openapi_server.test import BaseTestCase
