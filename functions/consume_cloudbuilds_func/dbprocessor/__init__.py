@@ -86,9 +86,6 @@ class DBProcessor(object):
             else:
                 logging.info("Payload does not contain correct fields, build has not been processed")
 
-    def remove_old_entity(self, repo_name, branch):
-        # Delete old entities after changing key format
-        entity = self.client.get(f"{repo_name}_{branch}")
-
-        if entity:
-            self.client.delete(entity.key.id_or_name)
+    def remove_old_entity(self, repo_name, branch):  # Delete old entities after changing key format
+        entity_key = self.client.key(config.DB_BUILD_TRIGGERS_KIND, f"{repo_name}_{branch}")
+        self.client.delete(entity_key)
