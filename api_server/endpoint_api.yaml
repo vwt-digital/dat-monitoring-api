@@ -64,7 +64,7 @@ paths:
           schema:
             type: integer
             default: 7
-        - name: maxRows
+        - name: max_rows
           in: query
           description: Max rows to return
           schema:
@@ -87,7 +87,7 @@ paths:
           schema:
             type: integer
             default: 7
-        - name: maxRows
+        - name: max_rows
           in: query
           description: Max rows to return
           schema:
@@ -113,7 +113,7 @@ paths:
             type: integer
             minimum: 1
             default: 7
-        - name: maxRows
+        - name: max_rows
           in: query
           description: Max rows to return
           schema:
@@ -233,6 +233,7 @@ components:
       properties:
         count:
           type: integer
+          format: int32
         latest_updated:
           format: date-time
           type: string
@@ -251,7 +252,7 @@ components:
       content:
         application/json:
           schema:
-            type: array
+            type: object
             items:
               $ref: '#/components/schemas/BuildTriggerStatus'
     BuildOtherStatuses:
@@ -259,7 +260,7 @@ components:
       content:
         application/json:
           schema:
-            type: array
+            type: object
             items:
               $ref: '#/components/schemas/BuildOtherStatus'
     ErrorReporting:
@@ -267,7 +268,7 @@ components:
       content:
         application/json:
           schema:
-            type: array
+            type: object
             items:
               $ref: '#/components/schemas/ErrorReport'
     ErrorReportingCount:
@@ -275,7 +276,7 @@ components:
       content:
         application/json:
           schema:
-            type: array
+            type: object
             items:
               $ref: '#/components/schemas/ErrorReportCount'
   securitySchemes:

@@ -1,5 +1,4 @@
 openapi: 3.0.2
-x-zally-ignore: [105, 104, 101]
 info:
   contact:
     email: opensource@vwt.digital
@@ -11,8 +10,6 @@ info:
     url: https://www.gnu.org/licenses/gpl.txt
   title: Monitoring
   version: 1.0.0
-  x-audience: company-internal
-  x-api-id: unspecified
 servers:
 - url: https://PROJECT_ID.appspot.com/
 security:
@@ -64,7 +61,7 @@ paths:
       - description: Max rows to return
         explode: true
         in: query
-        name: maxRows
+        name: max_rows
         required: false
         schema:
           default: 20
@@ -121,7 +118,7 @@ paths:
       - description: Max rows to return
         explode: true
         in: query
-        name: maxRows
+        name: max_rows
         required: false
         schema:
           default: 20
@@ -158,7 +155,7 @@ paths:
       - description: Max rows to return
         explode: true
         in: query
-        name: maxRows
+        name: max_rows
         required: false
         schema:
           default: 5
@@ -324,6 +321,7 @@ components:
           type: application
       properties:
         count:
+          format: int32
           type: integer
         latest_updated:
           format: date-time
