@@ -33,6 +33,7 @@ class DBProcessor(object):
             repo_name = payload['substitutions']['REPO_NAME']
             branch = payload['substitutions']['BRANCH_NAME']
             new_status = parse_status(payload)
+            new_status_original = payload['status']
 
             # Create Datastore entity
             key = '{}_{}_{}'.format(project_id, repo_name, branch)
@@ -43,6 +44,7 @@ class DBProcessor(object):
                 entity = datastore.Entity(key=entity_key)
 
             old_status = entity.get('status', 'N/A')  # Get old status
+            old_status_original = entity.get('status_original', 'N/A')  # Get old original status
 
             # Update status
             entity.update({
@@ -50,12 +52,17 @@ class DBProcessor(object):
                 'project_id': project_id,
                 'branch': branch,
                 'status': new_status,
+                'status_original': new_status_original,
                 'updated': datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                 'log_url': payload.get('logUrl', '')
             })
 
             self.client.put(entity)
-            logging.info(f"Build '{key}' changed status from '{old_status}' to '{new_status}'")
+            if old_status != new_status:
+                logging.info(f"Build '{key}' changed status from '{old_status}' to '{new_status}'")
+            else:
+                logging.info(f"Build '{key}' kept status '{old_status}'. " +
+                             f"Original status changed from '{old_status_original}' to '{new_status_original}'")
 
             self.remove_old_entity(repo_name, branch)  # Delete old entities after changing key format
         else:
