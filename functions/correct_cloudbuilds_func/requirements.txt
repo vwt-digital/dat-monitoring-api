@@ -1,0 +1,4 @@
+flask_cors == 3.0.7
+google-cloud-datastore == 1.8.0
+google-python-cloud-debugger == 2.13
+python-dateutil == 2.6.0
