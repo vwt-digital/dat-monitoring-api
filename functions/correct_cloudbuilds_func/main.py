@@ -20,10 +20,11 @@ def correct_cloudbuilds(request):
         query.keys_only()
         entities = query.fetch()
 
+        batch_count_total = 0
+
         if entities:
             batch.begin()
             batch_count = 0
-            batch_count_total = 0
 
             for entity in entities:
                 if batch_count == 500:
@@ -41,8 +42,9 @@ def correct_cloudbuilds(request):
                 batch_count_total += 1
 
             batch.commit()
-            return make_response(f"Updated total of {batch_count_total} entities", 200)
-        return make_response('No entities found', 204)
+
+        logging.info(f"Updated total of {batch_count_total} entities")
+        return make_response("No Content", 204)
     else:
         problem = {"type": "MissingParameters",
                    "title": "Expected kind, hours interval and field for deleting entities not found",
