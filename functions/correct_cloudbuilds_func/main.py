@@ -36,6 +36,7 @@ def correct_cloudbuilds(request):
 
                 entity['status'] = 'failing'
                 entity['status_original'] = 'AUTO_FAILURE'
+                entity['updated'] = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
                 batch.put(entity)
                 batch_count += 1
