@@ -17,6 +17,7 @@ def correct_cloudbuilds(request):
 
         time_delta = (datetime.datetime.now() - datetime.timedelta(hours=interval)).isoformat()
         query.add_filter(request.args["field"], "<=", time_delta)
+        query.add_filter("status", "=", "pending")
         query.keys_only()
         entities = query.fetch()
 
