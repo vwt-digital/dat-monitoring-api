@@ -1,4 +1,5 @@
 openapi: 3.0.2
+x-zally-ignore: [110, 105, 104, 101]
 info:
   contact:
     email: opensource@vwt.digital
@@ -10,6 +11,8 @@ info:
     url: https://www.gnu.org/licenses/gpl.txt
   title: Monitoring
   version: 1.0.0
+  x-audience: company-internal
+  x-api-id: unspecified
 servers:
 - url: https://PROJECT_ID.appspot.com/
 security:
