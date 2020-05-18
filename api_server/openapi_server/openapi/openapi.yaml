@@ -14,20 +14,22 @@ info:
   x-audience: company-internal
   x-api-id: unspecified
 servers:
-  - url: https://PROJECT_ID.appspot.com/
+- url: https://PROJECT_ID.appspot.com/
 security:
-  - ApiKeyAuth: []
+- ApiKeyAuth: []
 paths:
   /build-statuses-others:
     get:
       description: Get a list of last 20 other build statuses
-      operationId: build_statuses_other_get
+      operationId: build_statuses_others_get
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BuildOtherStatus'
+                items:
+                  $ref: '#/components/schemas/BuildOtherStatus'
+                type: array
           description: Scheme with multiple other build statuses
         "204":
           description: No content
@@ -36,44 +38,46 @@ paths:
   /build-statuses-others/{status}:
     get:
       description: Get a list of other build statuses by status, days and max rows
-      operationId: build_statuses_other_status_get
+      operationId: build_statuses_others_status_get
       parameters:
-        - description: A unique status identifier
-          explode: false
-          in: path
-          name: status
-          required: true
-          schema:
-            enum:
-              - failing
-              - pending
-              - passing
-            type: string
-          style: simple
-        - description: Total days to include
-          explode: true
-          in: query
-          name: days
-          required: false
-          schema:
-            default: 7
-            type: integer
-          style: form
-        - description: Max rows to return
-          explode: true
-          in: query
-          name: max_rows
-          required: false
-          schema:
-            default: 20
-            type: integer
-          style: form
+      - description: A unique status identifier
+        explode: false
+        in: path
+        name: status
+        required: true
+        schema:
+          enum:
+          - failing
+          - pending
+          - passing
+          type: string
+        style: simple
+      - description: Total days to include
+        explode: true
+        in: query
+        name: days
+        required: false
+        schema:
+          default: 7
+          type: integer
+        style: form
+      - description: Max rows to return
+        explode: true
+        in: query
+        name: maxRows
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BuildOtherStatus'
+                items:
+                  $ref: '#/components/schemas/BuildOtherStatus'
+                type: array
           description: Scheme with multiple other build statuses
         "204":
           description: No content
@@ -92,7 +96,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BuildTriggerStatus'
+                items:
+                  $ref: '#/components/schemas/BuildTriggerStatus'
+                type: array
           description: Scheme with multiple build trigger statuses
         "204":
           description: No content
@@ -101,32 +107,34 @@ paths:
   /error-reports:
     get:
       description: Get a list of errors reportings by days and max rows
-      operationId: error_reporting_get
+      operationId: error_reports_get
       parameters:
-        - description: Total days to include
-          explode: true
-          in: query
-          name: days
-          required: false
-          schema:
-            default: 7
-            type: integer
-          style: form
-        - description: Max rows to return
-          explode: true
-          in: query
-          name: max_rows
-          required: false
-          schema:
-            default: 20
-            type: integer
-          style: form
+      - description: Total days to include
+        explode: true
+        in: query
+        name: days
+        required: false
+        schema:
+          default: 7
+          type: integer
+        style: form
+      - description: Max rows to return
+        explode: true
+        in: query
+        name: maxRows
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorReport'
+                items:
+                  $ref: '#/components/schemas/ErrorReport'
+                type: array
           description: Scheme with multiple error reportings
         "204":
           description: No content
@@ -135,34 +143,36 @@ paths:
   /error-reports/counts:
     get:
       description: Get a list of projects with errors reportings count in last x days
-      operationId: error_reporting_count_get
+      operationId: error_reports_counts_get
       parameters:
-        - description: Total days to include
-          explode: true
-          in: query
-          name: days
-          required: false
-          schema:
-            default: 7
-            minimum: 1
-            type: integer
-          style: form
-        - description: Max rows to return
-          explode: true
-          in: query
-          name: max_rows
-          required: false
-          schema:
-            default: 5
-            minimum: 1
-            type: integer
-          style: form
+      - description: Total days to include
+        explode: true
+        in: query
+        name: days
+        required: false
+        schema:
+          default: 7
+          minimum: 1
+          type: integer
+        style: form
+      - description: Max rows to return
+        explode: true
+        in: query
+        name: maxRows
+        required: false
+        schema:
+          default: 5
+          minimum: 1
+          type: integer
+        style: form
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorReportCount'
+                items:
+                  $ref: '#/components/schemas/ErrorReportCount'
+                type: array
           description: Scheme with count of error reportings per project
         "204":
           description: No content
@@ -211,6 +221,7 @@ components:
         project_id: random-project-id
         repo_name: random-repo-name
         status: passing
+        auto_corrected: false
         updated: 2019-09-01T12:00:00+02:00
         log_url: https://console.cloud.google.com/gcr/builds/random-project-id
       properties:
@@ -222,22 +233,25 @@ components:
           type: string
         status:
           enum:
-            - pending
-            - failing
-            - passing
+          - pending
+          - failing
+          - passing
           type: string
+        auto_corrected:
+          type: boolean
         updated:
           format: date-time
           type: string
         log_url:
           type: string
       required:
-        - branch
-        - log_url
-        - project_id
-        - repo_name
-        - status
-        - updated
+      - auto_corrected
+      - branch
+      - log_url
+      - project_id
+      - repo_name
+      - status
+      - updated
       type: object
     BuildOtherStatus:
       example:
@@ -261,19 +275,19 @@ components:
           type: string
         status:
           enum:
-            - pending
-            - failing
-            - passing
+          - pending
+          - failing
+          - passing
           type: string
         log_url:
           type: string
       required:
-        - finish_time
-        - id
-        - log_url
-        - project_id
-        - start_time
-        - status
+      - finish_time
+      - id
+      - log_url
+      - project_id
+      - start_time
+      - status
       type: object
     ErrorReport:
       example:
@@ -295,11 +309,11 @@ components:
         trace:
           type: string
       required:
-        - id
-        - log_name
-        - receive_timestamp
-        - resource
-        - trace
+      - id
+      - log_name
+      - receive_timestamp
+      - resource
+      - trace
       type: object
     ErrorReportCount:
       example:
@@ -311,7 +325,6 @@ components:
       properties:
         count:
           type: integer
-          format: int64
         latest_updated:
           format: date-time
           type: string
@@ -320,10 +333,10 @@ components:
         resource:
           type: object
       required:
-        - count
-        - latest_updated
-        - project_id
-        - resource
+      - count
+      - latest_updated
+      - project_id
+      - resource
       type: object
   securitySchemes:
     ApiKeyAuth:
