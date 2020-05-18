@@ -33,10 +33,9 @@ def correct_cloudbuilds(request):
                     batch.begin()
                     batch_count = 0
 
-                entity.update({
-                    'status': 'failing',
-                    'status_original': 'AUTO_FAILURE'
-                })
+                entity['status'] = 'failing'
+                entity['status_original'] = 'AUTO_FAILURE'
+
                 batch.put(entity)
                 batch_count += 1
                 batch_count_total += 1
