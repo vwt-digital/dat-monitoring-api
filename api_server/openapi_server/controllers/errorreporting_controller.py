@@ -9,7 +9,7 @@ from flask import make_response
 from google.cloud import datastore
 
 
-def error_reporting_get(days=None, max_rows=None):  # noqa: E501
+def error_reports_get(days=None, max_rows=None):  # noqa: E501
     """Get errors reportings by conditions
 
     Get a list of errors reportings by days and max rows # noqa: E501
@@ -47,7 +47,7 @@ def error_reporting_get(days=None, max_rows=None):  # noqa: E501
     return make_response(jsonify([]), 204)
 
 
-def error_reporting_count_get(days=None, max_rows=None):  # noqa: E501
+def error_reports_counts_get(days=None, max_rows=None):  # noqa: E501
     """Get count of project errors reportings in last x days
 
     Get a list of projects with errors reportings count in last x days # noqa: E501

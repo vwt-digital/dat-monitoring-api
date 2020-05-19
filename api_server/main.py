@@ -5,11 +5,11 @@ from Flask_AuditLog import AuditLog
 from Flask_No_Cache import CacheControl
 from flask_sslify import SSLify
 
-try:
-    import googleclouddebugger
-    googleclouddebugger.enable()
-except ImportError:
-    pass
+# try:
+#     import googleclouddebugger
+#     googleclouddebugger.enable()
+# except ImportError:
+#     pass
 
 app = openapi_server.app
 flaskapp = app.app

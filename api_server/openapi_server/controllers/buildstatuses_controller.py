@@ -28,6 +28,7 @@ def build_statuses_triggers_get():  # noqa: E501
             'project_id': status.get('project_id', ''),
             'repo_name': status.get('repo_name', ''),
             'status': status.get('status', ''),
+            'auto_corrected': True if status.get('status_original', '') == 'AUTO_FAILURE' else False,
             'updated': status.get('updated', ''),
             'log_url': status.get('log_url', '')
         } for status in db_data]
@@ -36,7 +37,7 @@ def build_statuses_triggers_get():  # noqa: E501
     return make_response(jsonify([]), 204)
 
 
-def build_statuses_other_get():  # noqa: E501
+def build_statuses_others_get():  # noqa: E501
     """Get last 20 other build statuses
 
     Get a list of last 20 other build statuses # noqa: E501
@@ -64,7 +65,7 @@ def build_statuses_other_get():  # noqa: E501
     return make_response(jsonify([]), 204)
 
 
-def build_statuses_other_status_get(status, days=None, max_rows=None):  # noqa: E501
+def build_statuses_others_status_get(status, days=None, max_rows=None):  # noqa: E501
     """Get other build statuses by conditions
 
     Get a list of other build statuses by status, days and max rows # noqa: E501

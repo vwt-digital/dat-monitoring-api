@@ -1,18 +1,15 @@
 import logging
 import json
 import base64
-import os
 
 from dbprocessor import DBProcessor
 
 parser = DBProcessor()
-verification_token = os.environ['PUBSUB_VERIFICATION_TOKEN']
+
+logging.basicConfig(level=logging.INFO)
 
 
 def topic_to_datastore(request):
-    if request.args.get('token', '') != verification_token:
-        return 'Invalid request', 400
-
     # Extract data from request
     envelope = json.loads(request.data.decode('utf-8'))
     payload = base64.b64decode(envelope['message']['data'])

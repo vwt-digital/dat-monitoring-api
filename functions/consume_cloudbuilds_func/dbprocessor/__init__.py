@@ -2,6 +2,7 @@ from google.cloud import datastore
 import config
 import datetime
 import json
+import logging
 
 
 def parse_status(payload):
@@ -23,68 +24,75 @@ class DBProcessor(object):
 
     def process(self, payload):
         if 'status' in payload and \
-            'substitutions' in payload and \
-            'REPO_NAME' in payload['substitutions'] and \
-                'BRANCH_NAME' in payload['substitutions']:
+                'projectId' in payload and \
+                'REPO_NAME' in payload.get('substitutions', {}) and \
+                'BRANCH_NAME' in payload.get('substitutions', {}):
 
-            repo_name = payload['substitutions'].get('REPO_NAME')
-            branch = payload['substitutions'].get('BRANCH_NAME')
-            kind = config.DB_BUILD_TRIGGERS_KIND
+            # Set some variables
+            project_id = payload['projectId']
+            repo_name = payload['substitutions']['REPO_NAME']
+            branch = payload['substitutions']['BRANCH_NAME']
+            new_status = parse_status(payload)
+            new_status_original = payload['status']
 
-            key = '{}_{}'.format(repo_name, branch)
-            entity_key = self.client.key(kind, key)
+            # Create Datastore entity
+            key = '{}_{}_{}'.format(project_id, repo_name, branch)
+            entity_key = self.client.key(config.DB_BUILD_TRIGGERS_KIND, key)
             entity = self.client.get(entity_key)
 
             if entity is None:
                 entity = datastore.Entity(key=entity_key)
 
-            self.populate_trigger_from_payload(entity, payload)
+            old_status = entity.get('status', 'N/A')  # Get old status
+            old_status_original = entity.get('status_original', 'N/A')  # Get old original status
+
+            # Update status
+            entity.update({
+                'repo_name': repo_name,
+                'project_id': project_id,
+                'branch': branch,
+                'status': new_status,
+                'status_original': new_status_original,
+                'updated': datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                'log_url': payload.get('logUrl', '')
+            })
+
             self.client.put(entity)
-        elif 'id' in payload:
+            if old_status != new_status:
+                logging.info(f"Build '{key}' changed status from '{old_status}' to '{new_status}'")
+            else:
+                logging.info(f"Build '{key}' kept status '{old_status}'. " +
+                             f"Original status changed from '{old_status_original}' to '{new_status_original}'")
+
+            self.remove_old_entity(repo_name, branch)  # Delete old entities after changing key format
+        else:
             # Check if the backup executing command is in payload
             payload_dump = json.dumps(payload)
-            if 'dcat-deploy/backup/run_backup.sh' in payload_dump:
-                kind = config.DB_BUILD_STATUSES_KIND
-
-                entity_key = self.client.key(kind, payload['id'])
+            if 'dcat-deploy/backup/run_backup.sh' in payload_dump and 'id' in payload:
+                entity_key = self.client.key(config.DB_BUILD_STATUSES_KIND, payload['id'])
                 entity = self.client.get(entity_key)
 
                 if entity is None:
                     entity = datastore.Entity(key=entity_key)
 
-                self.populate_other_from_payload(entity, payload)
+                new_status = parse_status(payload) if 'status' in payload else ''  # Parse status
+
+                entity.update({
+                    'id': payload.get('id', ''),
+                    'log_url': payload.get('logUrl', ''),
+                    'logs_bucket': payload.get('logsBucket', ''),
+                    'project_id': payload.get('projectId', ''),
+                    'status': new_status,
+                    'create_time': payload.get('createTime', ''),
+                    'finish_time': payload.get('finishTime', ''),
+                    'start_time': payload.get('startTime', '')
+                })
                 self.client.put(entity)
+                logging.info(
+                    f"Added new backup build '{payload['id']}' for project '{payload.get('projectId', 'N/A')}'")
+            else:
+                logging.info("Payload does not contain correct fields, build has not been processed")
 
-    @staticmethod
-    def populate_trigger_from_payload(entity, payload):
-        # Set repo and branch name
-        repo_name = payload['substitutions'].get('REPO_NAME', 'N/A')
-        branch = payload['substitutions'].get('BRANCH_NAME', 'N/A')
-
-        # Set status to either pending, failing or passing
-        status = parse_status(payload)
-
-        entity.update({
-            'repo_name': repo_name,
-            'project_id': payload.get('projectId', ''),
-            'branch': branch,
-            'status': status,
-            'updated': datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-            'log_url': payload.get('logUrl', '')
-        })
-
-    @staticmethod
-    def populate_other_from_payload(entity, payload):
-        # Set status to either pending, failing or passing
-        status = parse_status(payload) if 'status' in payload else ''
-
-        entity.update({
-            'id': payload.get('id', ''),
-            'log_url': payload.get('logUrl', ''),
-            'logs_bucket': payload.get('logsBucket', ''),
-            'project_id': payload.get('projectId', ''),
-            'status': '{}'.format(status),
-            'create_time': payload.get('createTime', ''),
-            'finish_time': payload.get('finishTime', ''),
-            'start_time': payload.get('startTime', '')
-        })
+    def remove_old_entity(self, repo_name, branch):  # Delete old entities after changing key format
+        entity_key = self.client.key(config.DB_BUILD_TRIGGERS_KIND, f"{repo_name}_{branch}")
+        self.client.delete(entity_key)

@@ -64,7 +64,7 @@ paths:
           schema:
             type: integer
             default: 7
-        - name: maxRows
+        - name: max_rows
           in: query
           description: Max rows to return
           schema:
@@ -87,7 +87,7 @@ paths:
           schema:
             type: integer
             default: 7
-        - name: maxRows
+        - name: max_rows
           in: query
           description: Max rows to return
           schema:
@@ -113,7 +113,7 @@ paths:
             type: integer
             minimum: 1
             default: 7
-        - name: maxRows
+        - name: max_rows
           in: query
           description: Max rows to return
           schema:
@@ -129,6 +129,7 @@ components:
         - project_id
         - repo_name
         - status
+        - auto_corrected
         - updated
         - log_url
       type: object
@@ -145,6 +146,8 @@ components:
             - failing
             - passing
           type: string
+        auto_corrected:
+          type: boolean
         updated:
           format: date-time
           type: string
@@ -155,6 +158,7 @@ components:
         project_id: random-project-id
         repo_name: random-repo-name
         status: passing
+        auto_corrected: false
         updated: 2019-09-01T12:00:00+02:00
         log_url: https://console.cloud.google.com/gcr/builds/random-project-id
     BuildOtherStatus:
@@ -229,6 +233,7 @@ components:
       properties:
         count:
           type: integer
+          format: int32
         latest_updated:
           format: date-time
           type: string
@@ -247,7 +252,7 @@ components:
       content:
         application/json:
           schema:
-            type: array
+            type: object
             items:
               $ref: '#/components/schemas/BuildTriggerStatus'
     BuildOtherStatuses:
@@ -255,7 +260,7 @@ components:
       content:
         application/json:
           schema:
-            type: array
+            type: object
             items:
               $ref: '#/components/schemas/BuildOtherStatus'
     ErrorReporting:
@@ -263,7 +268,7 @@ components:
       content:
         application/json:
           schema:
-            type: array
+            type: object
             items:
               $ref: '#/components/schemas/ErrorReport'
     ErrorReportingCount:
@@ -271,7 +276,7 @@ components:
       content:
         application/json:
           schema:
-            type: array
+            type: object
             items:
               $ref: '#/components/schemas/ErrorReportCount'
   securitySchemes:
