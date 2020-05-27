@@ -24,11 +24,13 @@ class DBProcessor(object):
 
     def process(self, payload):
         if 'status' in payload and \
+                'id' in payload and \
                 'projectId' in payload and \
                 'REPO_NAME' in payload.get('substitutions', {}) and \
                 'BRANCH_NAME' in payload.get('substitutions', {}):
 
             # Set some variables
+            build_id = payload['id']
             project_id = payload['projectId']
             repo_name = payload['substitutions']['REPO_NAME']
             branch = payload['substitutions']['BRANCH_NAME']
@@ -43,8 +45,14 @@ class DBProcessor(object):
             if entity is None:
                 entity = datastore.Entity(key=entity_key)
 
+            old_build_id = entity.get('build_id', None)  # Get old build id
             old_status = entity.get('status', 'N/A')  # Get old status
             old_status_original = entity.get('status_original', 'N/A')  # Get old original status
+
+            if old_build_id and build_id == old_build_id and \
+                    new_status == 'pending' and old_status in ['failing', 'passing']:
+                new_status = old_status
+                new_status_original = old_status_original
 
             # Update status
             entity.update({
@@ -53,6 +61,7 @@ class DBProcessor(object):
                 'branch': branch,
                 'status': new_status,
                 'status_original': new_status_original,
+                'build_id': build_id,
                 'updated': datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                 'log_url': payload.get('logUrl', '')
             })
