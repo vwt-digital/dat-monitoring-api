@@ -18,75 +18,6 @@ servers:
 security:
 - ApiKeyAuth: []
 paths:
-  /build-statuses-others:
-    get:
-      description: Get a list of last 20 other build statuses
-      operationId: build_statuses_others_get
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/BuildOtherStatus'
-                type: array
-          description: Scheme with multiple other build statuses
-        "204":
-          description: No content
-      summary: Get last 20 other build statuses
-      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses-others/{status}:
-    get:
-      description: Get a list of other build statuses by status, days and max rows
-      operationId: build_statuses_others_status_get
-      parameters:
-      - description: A unique status identifier
-        explode: false
-        in: path
-        name: status
-        required: true
-        schema:
-          enum:
-          - failing
-          - pending
-          - passing
-          type: string
-        style: simple
-      - description: Total days to include
-        explode: true
-        in: query
-        name: days
-        required: false
-        schema:
-          default: 7
-          type: integer
-        style: form
-      - description: Max rows to return
-        explode: true
-        in: query
-        name: max_rows
-        required: false
-        schema:
-          default: 20
-          type: integer
-        style: form
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/BuildOtherStatus'
-                type: array
-          description: Scheme with multiple other build statuses
-        "204":
-          description: No content
-        "404":
-          description: Status not of correct type
-        "400":
-          description: Bad request
-      summary: Get other build statuses by conditions
-      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
   /build-statuses-triggers:
     get:
       description: Get a list of all build trigger statuses
@@ -190,14 +121,6 @@ components:
               $ref: '#/components/schemas/BuildTriggerStatus'
             type: array
       description: Scheme with multiple build trigger statuses
-    BuildOtherStatuses:
-      content:
-        application/json:
-          schema:
-            items:
-              $ref: '#/components/schemas/BuildOtherStatus'
-            type: array
-      description: Scheme with multiple other build statuses
     ErrorReporting:
       content:
         application/json:
@@ -252,42 +175,6 @@ components:
       - repo_name
       - status
       - updated
-      type: object
-    BuildOtherStatus:
-      example:
-        finish_time: 2019-09-01T12:00:00+02:00
-        start_time: 2019-09-01T12:00:00+02:00
-        id: 918d693e-7cc1-45f7-bde2-e00cca32a5b1
-        project_id: random-project-id
-        status: passing
-        log_url: https://console.cloud.google.com/gcr/builds/918d693e-7cc1-45f7-bde2-e00cca32a5b1
-      properties:
-        finish_time:
-          format: date-time
-          type: string
-        start_time:
-          format: date-time
-          type: string
-        id:
-          format: uuid
-          type: string
-        project_id:
-          type: string
-        status:
-          enum:
-          - pending
-          - failing
-          - passing
-          type: string
-        log_url:
-          type: string
-      required:
-      - finish_time
-      - id
-      - log_url
-      - project_id
-      - start_time
-      - status
       type: object
     ErrorReport:
       example:

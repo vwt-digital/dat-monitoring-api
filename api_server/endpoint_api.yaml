@@ -27,50 +27,6 @@ paths:
       summary: Get all build trigger statuses
       description: Get a list of all build trigger statuses
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses-others:
-    get:
-      responses:
-        "200":
-          $ref: '#/components/responses/BuildOtherStatuses'
-        "204":
-          description: No content
-      summary: Get last 20 other build statuses
-      description: Get a list of last 20 other build statuses
-      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
-  /build-statuses-others/{status}:
-    get:
-      responses:
-        "200":
-          $ref: '#/components/responses/BuildOtherStatuses'
-        "204":
-          description: No content
-        "404":
-          description: Status not of correct type
-        "400":
-          description: Bad request
-      summary: Get other build statuses by conditions
-      description: Get a list of other build statuses by status, days and max rows
-      parameters:
-        - name: status
-          in: path
-          description: A unique status identifier
-          required: true
-          schema:
-            type: string
-            enum: [failing, pending, passing]
-        - name: days
-          in: query
-          description: Total days to include
-          schema:
-            type: integer
-            default: 7
-        - name: max_rows
-          in: query
-          description: Max rows to return
-          schema:
-            type: integer
-            default: 20
-      x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
   /error-reports:
     get:
       responses:
@@ -161,42 +117,6 @@ components:
         auto_corrected: false
         updated: 2019-09-01T12:00:00+02:00
         log_url: https://console.cloud.google.com/gcr/builds/random-project-id
-    BuildOtherStatus:
-      required:
-        - finish_time
-        - start_time
-        - id
-        - project_id
-        - status
-        - log_url
-      type: object
-      properties:
-        finish_time:
-          format: date-time
-          type: string
-        start_time:
-          format: date-time
-          type: string
-        id:
-          type: string
-          format: uuid
-        project_id:
-          type: string
-        status:
-          enum:
-            - pending
-            - failing
-            - passing
-          type: string
-        log_url:
-          type: string
-      example:
-        finish_time: 2019-09-01T12:00:00+02:00
-        start_time: 2019-09-01T12:00:00+02:00
-        id: 918d693e-7cc1-45f7-bde2-e00cca32a5b1
-        project_id: random-project-id
-        status: passing
-        log_url: https://console.cloud.google.com/gcr/builds/918d693e-7cc1-45f7-bde2-e00cca32a5b1
     ErrorReport:
       required:
         - id
@@ -255,14 +175,6 @@ components:
             type: object
             items:
               $ref: '#/components/schemas/BuildTriggerStatus'
-    BuildOtherStatuses:
-      description: Scheme with multiple other build statuses
-      content:
-        application/json:
-          schema:
-            type: object
-            items:
-              $ref: '#/components/schemas/BuildOtherStatus'
     ErrorReporting:
       description: Scheme with multiple error reportings
       content:
