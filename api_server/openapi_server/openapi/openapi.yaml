@@ -144,7 +144,6 @@ components:
         project_id: random-project-id
         repo_name: random-repo-name
         status: passing
-        auto_corrected: false
         updated: 2019-09-01T12:00:00+02:00
         log_url: https://console.cloud.google.com/gcr/builds/random-project-id
       properties:
@@ -160,15 +159,12 @@ components:
           - failing
           - passing
           type: string
-        auto_corrected:
-          type: boolean
         updated:
           format: date-time
           type: string
         log_url:
           type: string
       required:
-      - auto_corrected
       - branch
       - log_url
       - project_id

@@ -15,7 +15,7 @@ class BuildTriggerStatus(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, branch=None, project_id=None, repo_name=None, status=None, auto_corrected=None, updated=None, log_url=None):  # noqa: E501
+    def __init__(self, branch=None, project_id=None, repo_name=None, status=None, updated=None, log_url=None):  # noqa: E501
         """BuildTriggerStatus - a model defined in OpenAPI
 
         :param branch: The branch of this BuildTriggerStatus.  # noqa: E501
@@ -26,8 +26,6 @@ class BuildTriggerStatus(Model):
         :type repo_name: str
         :param status: The status of this BuildTriggerStatus.  # noqa: E501
         :type status: str
-        :param auto_corrected: The auto_corrected of this BuildTriggerStatus.  # noqa: E501
-        :type auto_corrected: bool
         :param updated: The updated of this BuildTriggerStatus.  # noqa: E501
         :type updated: datetime
         :param log_url: The log_url of this BuildTriggerStatus.  # noqa: E501
@@ -38,7 +36,6 @@ class BuildTriggerStatus(Model):
             'project_id': str,
             'repo_name': str,
             'status': str,
-            'auto_corrected': bool,
             'updated': datetime,
             'log_url': str
         }
@@ -48,7 +45,6 @@ class BuildTriggerStatus(Model):
             'project_id': 'project_id',
             'repo_name': 'repo_name',
             'status': 'status',
-            'auto_corrected': 'auto_corrected',
             'updated': 'updated',
             'log_url': 'log_url'
         }
@@ -57,7 +53,6 @@ class BuildTriggerStatus(Model):
         self._project_id = project_id
         self._repo_name = repo_name
         self._status = status
-        self._auto_corrected = auto_corrected
         self._updated = updated
         self._log_url = log_url
 
@@ -167,29 +162,6 @@ class BuildTriggerStatus(Model):
             )
 
         self._status = status
-
-    @property
-    def auto_corrected(self):
-        """Gets the auto_corrected of this BuildTriggerStatus.
-
-
-        :return: The auto_corrected of this BuildTriggerStatus.
-        :rtype: bool
-        """
-        return self._auto_corrected
-
-    @auto_corrected.setter
-    def auto_corrected(self, auto_corrected):
-        """Sets the auto_corrected of this BuildTriggerStatus.
-
-
-        :param auto_corrected: The auto_corrected of this BuildTriggerStatus.
-        :type auto_corrected: bool
-        """
-        if auto_corrected is None:
-            raise ValueError("Invalid value for `auto_corrected`, must not be `None`")  # noqa: E501
-
-        self._auto_corrected = auto_corrected
 
     @property
     def updated(self):

@@ -27,7 +27,6 @@ def build_statuses_triggers_get():  # noqa: E501
             'project_id': status.get('project_id', ''),
             'repo_name': status.get('repo_name', ''),
             'status': status.get('status', ''),
-            'auto_corrected': True if status.get('status_original', '') == 'AUTO_FAILURE' else False,
             'updated': status.get('updated', ''),
             'log_url': status.get('log_url', '')
         } for status in db_data]
