@@ -4,7 +4,6 @@ from __future__ import absolute_import
 import unittest
 import config
 
-from openapi_server.models.build_other_status import BuildOtherStatus  # noqa: E501
 from openapi_server.models.build_trigger_status import BuildTriggerStatus  # noqa: E501
 from openapi_server.models.error_report import ErrorReport  # noqa: E501
 from openapi_server.models.error_report_count import ErrorReportCount  # noqa: E501
@@ -13,38 +12,6 @@ from openapi_server.test import BaseTestCase
 
 class TestDefaultController(BaseTestCase):
     """DefaultController integration test stubs"""
-
-    def test_build_statuses_others_get(self):
-        """Test case for build_statuses_others_get
-
-        Get last 20 other build statuses
-        """
-        headers = { 
-            'Accept': 'application/json',
-            "x-api-key": config.API_KEY,
-        }
-        response = self.client.open(
-            '/build-statuses-others',
-            method='GET',
-            headers=headers)
-        self.assert200(response,
-                       'Response body is : ' + response.data.decode('utf-8'))
-
-    def test_build_statuses_others_status_get(self):
-        """Test case for build_statuses_others_status_get
-
-        Get other build statuses by conditions
-        """
-        headers = { 
-            'Accept': 'application/json',
-            "x-api-key": config.API_KEY,
-        }
-        response = self.client.open(
-            '/build-statuses-others/{status}?days={days}&max_rows={max_rows}'.format(status='pending',days=7, max_rows=5),
-            method='GET',
-            headers=headers)
-        self.assert200(response,
-                       'Response body is : ' + response.data.decode('utf-8'))
 
     def test_build_statuses_triggers_get(self):
         """Test case for build_statuses_triggers_get

@@ -23,17 +23,26 @@ class DBProcessor(object):
         pass
 
     def process(self, payload):
-        if 'status' in payload and \
-                'id' in payload and \
-                'projectId' in payload and \
-                'REPO_NAME' in payload.get('substitutions', {}) and \
-                'BRANCH_NAME' in payload.get('substitutions', {}):
+        payload_dump = json.dumps(payload)
+        correct_build = False
+        repo_name = None
+        branch = None
 
+        if 'status' in payload and 'id' in payload and 'projectId' in payload:
+            if 'REPO_NAME' in payload.get('substitutions', {}) and 'BRANCH_NAME' in payload.get('substitutions', {}):
+                correct_build = True
+                repo_name = payload['substitutions']['REPO_NAME']
+                branch = payload['substitutions']['BRANCH_NAME']
+            elif 'dcat-deploy/backup/run_backup.sh' in payload_dump and \
+                    '_DCAT_DEPLOY_BRANCH_NAME' in payload.get('substitutions', {}):
+                correct_build = True
+                repo_name = 'backup'
+                branch = payload['substitutions']['_DCAT_DEPLOY_BRANCH_NAME']
+
+        if correct_build:
             # Set some variables
             build_id = payload['id']
             project_id = payload['projectId']
-            repo_name = payload['substitutions']['REPO_NAME']
-            branch = payload['substitutions']['BRANCH_NAME']
             new_status = parse_status(payload)
             new_status_original = payload['status']
 
@@ -75,32 +84,7 @@ class DBProcessor(object):
 
             self.remove_old_entity(repo_name, branch)  # Delete old entities after changing key format
         else:
-            # Check if the backup executing command is in payload
-            payload_dump = json.dumps(payload)
-            if 'dcat-deploy/backup/run_backup.sh' in payload_dump and 'id' in payload:
-                entity_key = self.client.key(config.DB_BUILD_STATUSES_KIND, payload['id'])
-                entity = self.client.get(entity_key)
-
-                if entity is None:
-                    entity = datastore.Entity(key=entity_key)
-
-                new_status = parse_status(payload) if 'status' in payload else ''  # Parse status
-
-                entity.update({
-                    'id': payload.get('id', ''),
-                    'log_url': payload.get('logUrl', ''),
-                    'logs_bucket': payload.get('logsBucket', ''),
-                    'project_id': payload.get('projectId', ''),
-                    'status': new_status,
-                    'create_time': payload.get('createTime', ''),
-                    'finish_time': payload.get('finishTime', ''),
-                    'start_time': payload.get('startTime', '')
-                })
-                self.client.put(entity)
-                logging.info(
-                    f"Added new backup build '{payload['id']}' for project '{payload.get('projectId', 'N/A')}'")
-            else:
-                logging.info("Payload does not contain correct fields, build has not been processed")
+            logging.info("Payload does not contain correct fields, build has not been processed")
 
     def remove_old_entity(self, repo_name, branch):  # Delete old entities after changing key format
         entity_key = self.client.key(config.DB_BUILD_TRIGGERS_KIND, f"{repo_name}_{branch}")
