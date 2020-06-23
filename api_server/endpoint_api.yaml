@@ -34,21 +34,11 @@ paths:
           $ref: '#/components/responses/ErrorReporting'
         "204":
           description: No content
-      summary: Get errors reportings by conditions
-      description: Get a list of errors reportings by days and max rows
+      summary: Get errors reportings
+      description: Get a list of errors reportings
       parameters:
-        - name: days
-          in: query
-          description: Total days to include
-          schema:
-            type: integer
-            default: 7
-        - name: max_rows
-          in: query
-          description: Max rows to return
-          schema:
-            type: integer
-            default: 20
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
   /error-reports/counts:
     get:
@@ -78,6 +68,25 @@ paths:
             default: 5
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
 components:
+  parameters:
+    limitParam:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+      description: The numbers of items to return.
+    offsetParam:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: The number of items to skip before starting to collect the result set.
   schemas:
     BuildTriggerStatus:
       required:

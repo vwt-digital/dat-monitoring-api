@@ -37,25 +37,28 @@ paths:
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
   /error-reports:
     get:
-      description: Get a list of errors reportings by days and max rows
+      description: Get a list of errors reportings
       operationId: error_reports_get
       parameters:
-      - description: Total days to include
+      - description: The numbers of items to return.
         explode: true
         in: query
-        name: days
-        required: false
-        schema:
-          default: 7
-          type: integer
-        style: form
-      - description: Max rows to return
-        explode: true
-        in: query
-        name: max_rows
+        name: limit
         required: false
         schema:
           default: 20
+          maximum: 100
+          minimum: 50
+          type: integer
+        style: form
+      - description: The number of items to skip before starting to collect the result
+          set.
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          minimum: 0
           type: integer
         style: form
       responses:
@@ -69,7 +72,7 @@ paths:
           description: Scheme with multiple error reportings
         "204":
           description: No content
-      summary: Get errors reportings by conditions
+      summary: Get errors reportings
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
   /error-reports/counts:
     get:
@@ -112,6 +115,30 @@ paths:
       summary: Get count of project errors reportings in last x days
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
 components:
+  parameters:
+    limitParam:
+      description: The numbers of items to return.
+      explode: true
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 20
+        maximum: 100
+        minimum: 50
+        type: integer
+      style: form
+    offsetParam:
+      description: The number of items to skip before starting to collect the result
+        set.
+      explode: true
+      in: query
+      name: offset
+      required: false
+      schema:
+        minimum: 0
+        type: integer
+      style: form
   responses:
     BuildTriggerStatuses:
       content:

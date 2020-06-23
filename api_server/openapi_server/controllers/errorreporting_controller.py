@@ -9,28 +9,28 @@ from flask import make_response
 from google.cloud import datastore
 
 
-def error_reports_get(days=None, max_rows=None):  # noqa: E501
-    """Get errors reportings by conditions
+def error_reports_get(limit=None, offset=None):  # noqa: E501
+    """Get errors reportings
 
-    Get a list of errors reportings by days and max rows # noqa: E501
+    Get a list of errors reportings # noqa: E501
 
-    :param days: Total days to include
-    :type days: int
-    :param max_rows: Max rows to return
-    :type max_rows: int
+    :param limit: The numbers of items to return.
+    :type limit: int
+    :param offset: The number of items to skip before starting to collect the result set.
+    :type offset: int
 
     :rtype: List[ErrorReport]
     """
-    max_rows = max_rows if max_rows else 20
-    days = days if days else 7
-
-    time_delta = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+    query_params = {}
+    if limit:
+        query_params['limit'] = limit
+    if offset:
+        query_params['offset'] = offset
 
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_REPORTING_KIND)
-    query.add_filter('receive_timestamp', '>', time_delta)
     query.order = ['-receive_timestamp']
-    db_data = query.fetch(max_rows)
+    db_data = query.fetch(**query_params)
 
     # Return results
     if db_data:
