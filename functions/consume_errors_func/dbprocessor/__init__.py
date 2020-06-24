@@ -18,8 +18,7 @@ class DBProcessor(object):
         elif 'insert_id' in payload:
             entity_key_name = payload['insert_id']
 
-        entity_key = self.client.key(config.DB_ERROR_REPORTING_KIND,
-                                     entity_key_name)
+        entity_key = self.client.key(config.DB_ERROR_REPORTING_KIND, entity_key_name)
         entity = self.client.get(entity_key)
 
         if entity:
@@ -34,8 +33,7 @@ class DBProcessor(object):
             elif 'resource' in payload \
                     and 'labels' in payload['resource'] \
                     and 'project_id' in payload['resource']['labels']:
-                payload['project_id'] = \
-                    payload['resource']['labels']['project_id']
+                payload['project_id'] = payload['resource']['labels']['project_id']
 
             self.populate_from_payload(self, entity, payload)
             self.populate_count_from_payload(self, payload, entity_key_name)
@@ -55,29 +53,26 @@ class DBProcessor(object):
             'insert_id': payload['insertId'] if 'insertId' in payload else '',
             'project_id': payload['project_id'],
             'log_name': payload['logName'] if 'logName' in payload else '',
-            'receive_timestamp': payload['receiveTimestamp'] if
-            'receiveTimestamp' in payload else
+            'receive_timestamp': payload['receiveTimestamp'] if 'receiveTimestamp' in payload else
             datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             'resource': payload['resource'] if 'resource' in payload else '',
+            'labels': payload['labels'] if 'labels' in payload else '',
             'trace': payload['trace'] if 'trace' in payload else '',
+            'severity': payload['severity'] if 'severity' in payload else '',
             'text_payload': text_payload
         })
         self.client.put(entity)
 
     @staticmethod
     def populate_count_from_payload(self, payload, entity_key_name):
-        error_key_name = '{}_{}'.format(payload['project_id'],
-                                        datetime.datetime.utcnow()
-                                        .strftime("%Y-%m-%d"))
+        error_key_name = '{}_{}'.format(payload['project_id'], datetime.datetime.utcnow().strftime("%Y-%m-%d"))
 
-        error_count_key = self.client.key(config.DB_ERROR_COUNT_KIND,
-                                          error_key_name)
+        error_count_key = self.client.key(config.DB_ERROR_COUNT_KIND, error_key_name)
         error_count = self.client.get(error_count_key)
 
         if error_count:
             error_count['count'] += 1
-            error_count['updated'] = datetime.datetime.utcnow() \
-                .strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            error_count['updated'] = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             error_count['latest_errorreporting_key'] = entity_key_name
 
             self.client.put(error_count)
@@ -88,8 +83,7 @@ class DBProcessor(object):
                 'date': datetime.datetime.utcnow().strftime("%Y-%m-%d"),
                 'latest_errorreporting_key': entity_key_name,
                 'project_id': payload['project_id'],
-                'updated': datetime.datetime.utcnow().strftime(
-                    "%Y-%m-%dT%H:%M:%S.%fZ")
+                'updated': datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             })
             self.client.put(error_count)
 
