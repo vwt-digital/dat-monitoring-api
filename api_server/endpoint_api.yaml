@@ -125,28 +125,38 @@ components:
     ErrorReport:
       required:
         - id
-        - log_name
+        - project_id
         - receive_timestamp
-        - resource
-        - trace
       type: object
       properties:
         id:
           type: string
+        labels:
+          type: object
         log_name:
+          type: string
+        project_id:
           type: string
         receive_timestamp:
           format: date-time
           type: string
         resource:
           type: object
+        severity:
+          type: string
+        text_payload:
+          type: string
         trace:
           type: string
       example:
         id: 1a9390e9-4ac5-4527-8e5e-05d2d153ada0
+        labels: {}
         log_name: random-log-name
+        project_id: random-project-id
         receive_timestamp: 2019-09-01T12:00:00+02:00
         resource: {}
+        severity: ERROR
+        text_payload: This is a payload
         trace: random-trace
     ErrorReportCount:
       required:

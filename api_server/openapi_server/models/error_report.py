@@ -15,40 +15,60 @@ class ErrorReport(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, id=None, log_name=None, receive_timestamp=None, resource=None, trace=None):  # noqa: E501
+    def __init__(self, id=None, labels=None, log_name=None, project_id=None, receive_timestamp=None, resource=None, severity=None, text_payload=None, trace=None):  # noqa: E501
         """ErrorReport - a model defined in OpenAPI
 
         :param id: The id of this ErrorReport.  # noqa: E501
         :type id: str
+        :param labels: The labels of this ErrorReport.  # noqa: E501
+        :type labels: object
         :param log_name: The log_name of this ErrorReport.  # noqa: E501
         :type log_name: str
+        :param project_id: The project_id of this ErrorReport.  # noqa: E501
+        :type project_id: str
         :param receive_timestamp: The receive_timestamp of this ErrorReport.  # noqa: E501
         :type receive_timestamp: datetime
         :param resource: The resource of this ErrorReport.  # noqa: E501
         :type resource: object
+        :param severity: The severity of this ErrorReport.  # noqa: E501
+        :type severity: str
+        :param text_payload: The text_payload of this ErrorReport.  # noqa: E501
+        :type text_payload: str
         :param trace: The trace of this ErrorReport.  # noqa: E501
         :type trace: str
         """
         self.openapi_types = {
             'id': str,
+            'labels': object,
             'log_name': str,
+            'project_id': str,
             'receive_timestamp': datetime,
             'resource': object,
+            'severity': str,
+            'text_payload': str,
             'trace': str
         }
 
         self.attribute_map = {
             'id': 'id',
+            'labels': 'labels',
             'log_name': 'log_name',
+            'project_id': 'project_id',
             'receive_timestamp': 'receive_timestamp',
             'resource': 'resource',
+            'severity': 'severity',
+            'text_payload': 'text_payload',
             'trace': 'trace'
         }
 
         self._id = id
+        self._labels = labels
         self._log_name = log_name
+        self._project_id = project_id
         self._receive_timestamp = receive_timestamp
         self._resource = resource
+        self._severity = severity
+        self._text_payload = text_payload
         self._trace = trace
 
     @classmethod
@@ -86,6 +106,27 @@ class ErrorReport(Model):
         self._id = id
 
     @property
+    def labels(self):
+        """Gets the labels of this ErrorReport.
+
+
+        :return: The labels of this ErrorReport.
+        :rtype: object
+        """
+        return self._labels
+
+    @labels.setter
+    def labels(self, labels):
+        """Sets the labels of this ErrorReport.
+
+
+        :param labels: The labels of this ErrorReport.
+        :type labels: object
+        """
+
+        self._labels = labels
+
+    @property
     def log_name(self):
         """Gets the log_name of this ErrorReport.
 
@@ -103,10 +144,31 @@ class ErrorReport(Model):
         :param log_name: The log_name of this ErrorReport.
         :type log_name: str
         """
-        if log_name is None:
-            raise ValueError("Invalid value for `log_name`, must not be `None`")  # noqa: E501
 
         self._log_name = log_name
+
+    @property
+    def project_id(self):
+        """Gets the project_id of this ErrorReport.
+
+
+        :return: The project_id of this ErrorReport.
+        :rtype: str
+        """
+        return self._project_id
+
+    @project_id.setter
+    def project_id(self, project_id):
+        """Sets the project_id of this ErrorReport.
+
+
+        :param project_id: The project_id of this ErrorReport.
+        :type project_id: str
+        """
+        if project_id is None:
+            raise ValueError("Invalid value for `project_id`, must not be `None`")  # noqa: E501
+
+        self._project_id = project_id
 
     @property
     def receive_timestamp(self):
@@ -149,10 +211,50 @@ class ErrorReport(Model):
         :param resource: The resource of this ErrorReport.
         :type resource: object
         """
-        if resource is None:
-            raise ValueError("Invalid value for `resource`, must not be `None`")  # noqa: E501
 
         self._resource = resource
+
+    @property
+    def severity(self):
+        """Gets the severity of this ErrorReport.
+
+
+        :return: The severity of this ErrorReport.
+        :rtype: str
+        """
+        return self._severity
+
+    @severity.setter
+    def severity(self, severity):
+        """Sets the severity of this ErrorReport.
+
+
+        :param severity: The severity of this ErrorReport.
+        :type severity: str
+        """
+
+        self._severity = severity
+
+    @property
+    def text_payload(self):
+        """Gets the text_payload of this ErrorReport.
+
+
+        :return: The text_payload of this ErrorReport.
+        :rtype: str
+        """
+        return self._text_payload
+
+    @text_payload.setter
+    def text_payload(self, text_payload):
+        """Sets the text_payload of this ErrorReport.
+
+
+        :param text_payload: The text_payload of this ErrorReport.
+        :type text_payload: str
+        """
+
+        self._text_payload = text_payload
 
     @property
     def trace(self):
@@ -172,8 +274,6 @@ class ErrorReport(Model):
         :param trace: The trace of this ErrorReport.
         :type trace: str
         """
-        if trace is None:
-            raise ValueError("Invalid value for `trace`, must not be `None`")  # noqa: E501
 
         self._trace = trace
 # flake8: noqa

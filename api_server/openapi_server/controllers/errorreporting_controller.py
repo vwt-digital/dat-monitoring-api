@@ -35,12 +35,15 @@ def error_reports_get(limit=None, offset=None):  # noqa: E501
     # Return results
     if db_data:
         result = [{
-            'id': ap['insert_id'],
-            'log_name': ap['log_name'],
-            'project_id': ap['project_id'],
-            'receive_timestamp': ap['receive_timestamp'],
-            'resource': ap['resource'],
-            'trace': ap['trace']
+            'id': ap.get('insert_id', ''),
+            'labels': ap.get('labels', {}),
+            'log_name': ap.get('log_name', ''),
+            'project_id': ap.get('project_id', ''),
+            'receive_timestamp': ap.get('receive_timestamp', ''),
+            'resource': ap.get('resource', {}),
+            'severity': ap.get('severity', ''),
+            'text_payload': ap.get('text_payload', ''),
+            'trace': ap.get('trace', ''),
         } for ap in db_data]
         return result
 
