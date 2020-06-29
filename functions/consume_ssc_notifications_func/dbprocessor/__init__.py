@@ -1,8 +1,6 @@
 from google.cloud import datastore
 import config
 import datetime
-import json
-import logging
 
 
 class DBProcessor(object):
@@ -31,10 +29,10 @@ class DBProcessor(object):
         # Update status
         entity.update({
             'project_id': project_id,
-            'catagory' : catagory,
-            'created' : create_time,
+            'catagory': catagory,
+            'created': create_time,
             'updated': datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-            'recommendation' : recommendation,
+            'recommendation': recommendation,
             'source': payload
         })
 
