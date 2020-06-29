@@ -40,10 +40,10 @@ paths:
       description: Get a list of errors reportings
       operationId: error_reports_get
       parameters:
-      - description: The numbers of items to return.
+      - description: The numbers of items within a page.
         explode: true
         in: query
-        name: limit
+        name: pageSize
         required: false
         schema:
           default: 50
@@ -51,15 +51,25 @@ paths:
           minimum: 1
           type: integer
         style: form
-      - description: The number of items to skip before starting to collect the result
-          set.
+      - description: The query cursor of the page
         explode: true
         in: query
-        name: offset
+        name: cursor
         required: false
         schema:
-          minimum: 0
-          type: integer
+          type: string
+        style: form
+      - description: Selector to get next or previous page based on the cursor
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: next
+          enum:
+          - prev
+          - next
+          type: string
         style: form
       responses:
         "200":
@@ -67,7 +77,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/ErrorReport'
+                  $ref: '#/components/schemas/ErrorReportResponse'
                 type: array
           description: Scheme with multiple error reportings
         "204":
@@ -116,11 +126,11 @@ paths:
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
 components:
   parameters:
-    limitParam:
-      description: The numbers of items to return.
+    pageSizeParam:
+      description: The numbers of items within a page.
       explode: true
       in: query
-      name: limit
+      name: pageSize
       required: false
       schema:
         default: 50
@@ -128,16 +138,27 @@ components:
         minimum: 1
         type: integer
       style: form
-    offsetParam:
-      description: The number of items to skip before starting to collect the result
-        set.
+    cursorParam:
+      description: The query cursor of the page
       explode: true
       in: query
-      name: offset
+      name: cursor
       required: false
       schema:
-        minimum: 0
-        type: integer
+        type: string
+      style: form
+    pageParam:
+      description: Selector to get next or previous page based on the cursor
+      explode: true
+      in: query
+      name: page
+      required: false
+      schema:
+        default: next
+        enum:
+        - prev
+        - next
+        type: string
       style: form
   responses:
     BuildTriggerStatuses:
@@ -153,7 +174,7 @@ components:
         application/json:
           schema:
             items:
-              $ref: '#/components/schemas/ErrorReport'
+              $ref: '#/components/schemas/ErrorReportResponse'
             type: array
       description: Scheme with multiple error reportings
     ErrorReportingCount:
@@ -258,6 +279,36 @@ components:
       - latest_updated
       - project_id
       - resource
+      type: object
+    ErrorReportResponse:
+      example:
+        status: Success
+        page_size: 50
+        next_cursor: eee028e4-ef38-40fb-a92b-41c441660d2e
+        results:
+        - id: 1a9390e9-4ac5-4527-8e5e-05d2d153ada0
+          labels: {}
+          log_name: random-log-name
+          project_id: random-project-id
+          receive_timestamp: 2019-09-01T12:00:00+02:00
+          resource: {}
+          severity: ERROR
+          text_payload: This is a payload
+          trace: random-trace
+      properties:
+        status:
+          description: The request status.
+          type: string
+        page_size:
+          description: The current page size
+          type: integer
+        next_cursor:
+          description: The next query cursor
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/ErrorReport'
+          type: array
       type: object
   securitySchemes:
     ApiKeyAuth:

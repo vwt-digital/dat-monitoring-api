@@ -9,32 +9,47 @@ from flask import make_response
 from google.cloud import datastore
 
 
-def error_reports_get(limit=None, offset=None):  # noqa: E501
+def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
     """Get errors reportings
 
     Get a list of errors reportings # noqa: E501
 
-    :param limit: The numbers of items to return.
-    :type limit: int
-    :param offset: The number of items to skip before starting to collect the result set.
-    :type offset: int
+    :param page_size: The numbers of items within a page.
+    :type page_size: int
+    :param cursor: The query cursor of the page
+    :type cursor: str
+    :param page: Selector to get next or previous page based on the cursor
+    :type page: str
 
-    :rtype: List[ErrorReport]
+    :rtype: List[ErrorReportResponse]
     """
-    query_params = {}
-    if limit:
-        query_params['limit'] = limit
-    if offset:
-        query_params['offset'] = offset
+
+    if page == 'prev' and not cursor:
+        return make_response(jsonify('A cursor is required when requesting a previous page.'), 400)
 
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_REPORTING_KIND)
-    query.order = ['-receive_timestamp']
-    db_data = query.fetch(**query_params)
+
+    query_params = {
+        'limit': page_size,
+        'start_cursor': cursor.encode() if cursor else None
+    }
+
+    # When the previous page is requested and the latest cursor from the original query is used
+    # to get results in reverse.
+    if page == 'prev':
+        query.order = ['receive_timestamp', '__key__']
+    else:
+        query.order = ['-receive_timestamp', '-__key__']
+
+    query_iter = query.fetch(**query_params)  # Execute query
+
+    current_page = next(query_iter.pages)  # Setting current iterator page
+    db_data = list(current_page)  # Set page results list
 
     # Return results
     if db_data:
-        result = [{
+        result_items = [{
             'id': ap.get('insert_id', ''),
             'labels': ap.get('labels', {}),
             'log_name': ap.get('log_name', ''),
@@ -45,9 +60,26 @@ def error_reports_get(limit=None, offset=None):  # noqa: E501
             'text_payload': ap.get('text_payload', ''),
             'trace': ap.get('trace', ''),
         } for ap in db_data]
-        return result
 
-    return make_response(jsonify([]), 204)
+        # Sort results if previous page is requested because query sort order is ascending instead of descending
+        if page == 'prev':
+            results = sorted(result_items, key=lambda i: i['receive_timestamp'], reverse=True)
+            next_cursor = cursor  # Grab current cursor for next page
+        else:
+            results = result_items
+            next_cursor = query_iter.next_page_token.decode()  # Grab new cursor for next page
+    else:
+        results = []
+        next_cursor = cursor
+
+    # Create response object
+    response = {
+        'status': 'success',
+        'page_size': page_size,
+        'next_cursor': next_cursor,
+        'results': results
+    }
+    return response
 
 
 def error_reports_counts_get(days=None, max_rows=None):  # noqa: E501
