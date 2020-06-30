@@ -147,3 +147,4 @@ class ErrorReportResponse(Model):
         """
 
         self._results = results
+# flake8: noqa

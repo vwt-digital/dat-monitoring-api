@@ -180,3 +180,4 @@ class Problem(Model):
         """
 
         self._instance = instance
+# flake8: noqa
