@@ -1,5 +1,5 @@
 openapi: 3.0.2
-x-zally-ignore: [110, 105, 104, 101]
+x-zally-ignore: [101, 104, 105, 110, 150, 235]
 info:
   contact:
     email: opensource@vwt.digital
@@ -33,6 +33,24 @@ paths:
           description: Scheme with multiple build trigger statuses
         "204":
           description: No content
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: No authorization token provided
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: Provided token doesn't have the required scope
       summary: Get all build trigger statuses
       x-openapi-router-controller: openapi_server.controllers.buildstatuses_controller
   /error-reports:
@@ -43,7 +61,7 @@ paths:
       - description: The numbers of items within a page.
         explode: true
         in: query
-        name: pageSize
+        name: page_size
         required: false
         schema:
           default: 50
@@ -83,6 +101,24 @@ paths:
           description: Scheme with multiple error reportings
         "204":
           description: No content
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: No authorization token provided
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: Provided token doesn't have the required scope
       summary: Get errors reportings
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
   /error-reports/counts:
@@ -121,8 +157,24 @@ paths:
           description: Scheme with count of error reportings per project
         "204":
           description: No content
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: No authorization token provided
         "403":
-          description: Parameters must be more than 0
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: Provided token doesn't have the required scope
       summary: Get count of project errors reportings in last x days
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
 components:
@@ -131,7 +183,7 @@ components:
       description: The numbers of items within a page.
       explode: true
       in: query
-      name: pageSize
+      name: page_size
       required: false
       schema:
         default: 50
@@ -303,6 +355,7 @@ components:
           type: string
         page_size:
           description: The current page size
+          format: int32
           type: integer
         next_cursor:
           description: The next query cursor

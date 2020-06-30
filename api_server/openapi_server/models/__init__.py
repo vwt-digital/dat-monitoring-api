@@ -7,3 +7,4 @@ from openapi_server.models.build_trigger_status import BuildTriggerStatus
 from openapi_server.models.error_report import ErrorReport
 from openapi_server.models.error_report_count import ErrorReportCount
 from openapi_server.models.error_report_response import ErrorReportResponse
+from openapi_server.models.problem import Problem
