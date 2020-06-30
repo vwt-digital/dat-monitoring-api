@@ -58,6 +58,7 @@ paths:
         required: false
         schema:
           type: string
+          format: byte
         style: form
       - description: Selector to get next or previous page based on the cursor
         explode: true
@@ -146,6 +147,7 @@ components:
       required: false
       schema:
         type: string
+        format: byte
       style: form
     pageParam:
       description: Selector to get next or previous page based on the cursor
@@ -305,6 +307,7 @@ components:
         next_cursor:
           description: The next query cursor
           type: string
+          format: byte
         results:
           items:
             $ref: '#/components/schemas/ErrorReport'

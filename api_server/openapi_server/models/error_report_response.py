@@ -24,14 +24,14 @@ class ErrorReportResponse(Model):
         :param page_size: The page_size of this ErrorReportResponse.  # noqa: E501
         :type page_size: int
         :param next_cursor: The next_cursor of this ErrorReportResponse.  # noqa: E501
-        :type next_cursor: str
+        :type next_cursor: bytearray
         :param results: The results of this ErrorReportResponse.  # noqa: E501
         :type results: List[ErrorReport]
         """
         self.openapi_types = {
             'status': str,
             'page_size': int,
-            'next_cursor': str,
+            'next_cursor': bytearray,
             'results': List[ErrorReport]
         }
 
@@ -111,7 +111,7 @@ class ErrorReportResponse(Model):
         The next query cursor  # noqa: E501
 
         :return: The next_cursor of this ErrorReportResponse.
-        :rtype: str
+        :rtype: bytearray
         """
         return self._next_cursor
 
@@ -122,7 +122,7 @@ class ErrorReportResponse(Model):
         The next query cursor  # noqa: E501
 
         :param next_cursor: The next_cursor of this ErrorReportResponse.
-        :type next_cursor: str
+        :type next_cursor: bytearray
         """
 
         self._next_cursor = next_cursor

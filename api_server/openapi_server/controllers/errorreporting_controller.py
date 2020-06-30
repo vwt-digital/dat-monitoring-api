@@ -1,12 +1,33 @@
 import config
+import os
 import datetime
 import itertools
+import base64
 import numpy as np
 
 from flask import jsonify
 from flask import make_response
 
-from google.cloud import datastore
+from google.cloud import datastore, kms
+
+
+def kms_encrypt_decrypt_cursor(cursor, type):
+    project_id = os.environ['GOOGLE_CLOUD_PROJECT']
+    location_id = "europe"
+    key_ring_id = f"{project_id}-keyring"
+    crypto_key_id = "db-cursor-key"
+
+    client = kms.KeyManagementServiceClient()
+    name = client.crypto_key_path_path(project_id, location_id, key_ring_id, crypto_key_id)
+
+    if type == 'encrypt':
+        encrypt_response = client.encrypt(name, cursor.encode())
+        response = base64.urlsafe_b64encode(encrypt_response.ciphertext).decode()
+    else:
+        encrypt_response = client.decrypt(name, base64.urlsafe_b64decode(cursor))
+        response = encrypt_response.plaintext
+
+    return response
 
 
 def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
@@ -32,7 +53,7 @@ def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
 
     query_params = {
         'limit': page_size,
-        'start_cursor': cursor.encode() if cursor else None
+        'start_cursor': kms_encrypt_decrypt_cursor(cursor, 'decrypt') if cursor else None
     }
 
     # When the previous page is requested and the latest cursor from the original query is used
@@ -76,7 +97,7 @@ def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
     response = {
         'status': 'success',
         'page_size': page_size,
-        'next_cursor': next_cursor,
+        'next_cursor': kms_encrypt_decrypt_cursor(next_cursor, 'encrypt'),
         'results': results
     }
     return response
