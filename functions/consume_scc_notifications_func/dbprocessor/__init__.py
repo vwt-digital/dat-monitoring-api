@@ -14,13 +14,11 @@ class DBProcessor(object):
         create_time = payload['finding']['createTime']
         notification_id = payload['finding']['name']
         recommendation = payload['finding']['sourceProperties']['Recommendation']
-        catagory = payload['finding']['catagory']
-
-        # print("Project id = : {}".format(project_id))
+        category = payload['finding']['category']
 
         # Create Datastore entity
         key = '{}'.format(notification_id)
-        entity_key = self.client.key(config.DB_BUILD_TRIGGERS_KIND, key)
+        entity_key = self.client.key(config.DB_SCC_NOTIFICATIONS_KIND, key)
         entity = self.client.get(entity_key)
 
         if entity is None:
@@ -29,7 +27,7 @@ class DBProcessor(object):
         # Update status
         entity.update({
             'project_id': project_id,
-            'catagory': catagory,
+            'category': category,
             'created': create_time,
             'updated': datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             'recommendation': recommendation,
