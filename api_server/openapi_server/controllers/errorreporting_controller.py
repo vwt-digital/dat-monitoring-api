@@ -3,11 +3,13 @@ import os
 import datetime
 import itertools
 import base64
+import operator
 import numpy as np
 
 from flask import jsonify
 from flask import make_response
 
+from functools import reduce
 from google.cloud import datastore, kms
 
 
@@ -176,3 +178,57 @@ def get_latest_error(keys, db_client):
         error_keys = error_keys + db_client.get_multi(error_batch_keys)
 
     return error_keys
+
+
+def get_from_dict(data_dict, map_list):
+    """Returns a dictionary based on a mapping"""
+    return reduce(operator.getitem, map_list, data_dict)
+
+
+def security_notifications_get(days=None, max_rows=100):  # noqa: E501
+    """Get a list of security notifications in last x days
+
+    Get a list of security notifications in last x days # noqa: E501
+
+    :param days: Total days to include
+    :type days: int
+    :param max_rows: Max rows to return
+    :type max_rows: int
+
+    :rtype: List[SecurityNotification]
+    """
+
+    if (days and days < 1) or max_rows < 1:
+        return make_response(
+            jsonify("Parameters must be more than 0"), 403)
+
+    # Get entity from kind
+    db_client = datastore.Client()
+    query = db_client.query(kind=config.DB_SCC_NOTIFICATIONS_KIND)
+
+    if days:
+        time_delta = (datetime.datetime.utcnow() - datetime.timedelta(days=days)).strftime('%Y-%m-%d')
+        query.add_filter('updated', '>=', time_delta)
+
+    query.order = ['-updated']
+    db_data = query.fetch(limit=max_rows)
+
+    # Return results
+    if db_data:
+        result = [{
+            'category': notification.get('category', ''),
+            'created_at': notification.get('created', ''),
+            'exception_instructions': get_from_dict(
+                notification, ['source', 'finding', 'sourceProperties', 'ExceptionInstructions']),
+            'explanation': get_from_dict(notification, ['source', 'finding', 'sourceProperties', 'Explanation']),
+            'external_uri': get_from_dict(notification, ['source', 'finding', 'externalUri']),
+            'id': notification.key.id_or_name,
+            'project_id': notification.get('project_id', ''),
+            'recommendation': notification.get('recommendation', ''),
+            'resource_name': get_from_dict(notification, ['source', 'finding', 'resourceName']),
+            'severity': get_from_dict(notification, ['source', 'finding', 'sourceProperties', 'SeverityLevel']),
+            'updated_at': notification.get('updated', '')
+        } for notification in db_data]
+        return result
+
+    return make_response(jsonify([]), 204)

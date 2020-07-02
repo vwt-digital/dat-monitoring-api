@@ -177,6 +177,62 @@ paths:
           description: Provided token doesn't have the required scope
       summary: Get count of project errors reportings in last x days
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
+  /security-notifications:
+    get:
+      description: Get a list of security notifications in last x days
+      operationId: security_notifications_get
+      parameters:
+        - description: Total days to include
+          explode: true
+          in: query
+          name: days
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+          style: form
+        - description: Max rows to return
+          explode: true
+          in: query
+          name: max_rows
+          required: false
+          schema:
+            default: 5
+            minimum: 1
+            maximum: 100
+            type: integer
+          style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SecurityNotification'
+                type: array
+          description: Scheme with security notifications
+        "204":
+          description: No content
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: No authorization token provided
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: Provided token doesn't have the required scope
+      summary: Get a list of security notifications in last x days
+      x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
 components:
   parameters:
     pageSizeParam:
@@ -365,6 +421,45 @@ components:
           items:
             $ref: '#/components/schemas/ErrorReport'
           type: array
+      type: object
+    SecurityNotification:
+      example:
+        category: Security issue
+        created_at: 2020-01-01T12:00:00.000Z
+        exception_instructions: A security error occurred
+        explanation: You did something wrong
+        external_uri: https://external-uri.com/
+        id: 9f85595a-906f-4d48-b3da-94920c586bf4
+        project_id: project_x
+        recommendation: Try to fix it
+        resource_name: resource_y
+        severity: High
+        updated_at: 2020-01-01T12:05:00.000Z
+      properties:
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        exception_instructions:
+          type: string
+        explanation:
+          type: string
+        external_uri:
+          type: string
+        id:
+          type: string
+        project_id:
+          type: string
+        recommendation:
+          type: string
+        resource_name:
+          type: string
+        severity:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:
