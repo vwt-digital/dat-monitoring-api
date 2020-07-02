@@ -15,7 +15,7 @@ class ErrorReport(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, id=None, labels=None, log_name=None, project_id=None, receive_timestamp=None, resource=None, severity=None, text_payload=None, trace=None):  # noqa: E501
+    def __init__(self, id=None, labels=None, log_name=None, project_id=None, received_at=None, resource=None, severity=None, text_payload=None, trace=None):  # noqa: E501
         """ErrorReport - a model defined in OpenAPI
 
         :param id: The id of this ErrorReport.  # noqa: E501
@@ -26,8 +26,8 @@ class ErrorReport(Model):
         :type log_name: str
         :param project_id: The project_id of this ErrorReport.  # noqa: E501
         :type project_id: str
-        :param receive_timestamp: The receive_timestamp of this ErrorReport.  # noqa: E501
-        :type receive_timestamp: datetime
+        :param received_at: The received_at of this ErrorReport.  # noqa: E501
+        :type received_at: datetime
         :param resource: The resource of this ErrorReport.  # noqa: E501
         :type resource: object
         :param severity: The severity of this ErrorReport.  # noqa: E501
@@ -42,7 +42,7 @@ class ErrorReport(Model):
             'labels': object,
             'log_name': str,
             'project_id': str,
-            'receive_timestamp': datetime,
+            'received_at': datetime,
             'resource': object,
             'severity': str,
             'text_payload': str,
@@ -54,7 +54,7 @@ class ErrorReport(Model):
             'labels': 'labels',
             'log_name': 'log_name',
             'project_id': 'project_id',
-            'receive_timestamp': 'receive_timestamp',
+            'received_at': 'received_at',
             'resource': 'resource',
             'severity': 'severity',
             'text_payload': 'text_payload',
@@ -65,7 +65,7 @@ class ErrorReport(Model):
         self._labels = labels
         self._log_name = log_name
         self._project_id = project_id
-        self._receive_timestamp = receive_timestamp
+        self._received_at = received_at
         self._resource = resource
         self._severity = severity
         self._text_payload = text_payload
@@ -171,27 +171,27 @@ class ErrorReport(Model):
         self._project_id = project_id
 
     @property
-    def receive_timestamp(self):
-        """Gets the receive_timestamp of this ErrorReport.
+    def received_at(self):
+        """Gets the received_at of this ErrorReport.
 
 
-        :return: The receive_timestamp of this ErrorReport.
+        :return: The received_at of this ErrorReport.
         :rtype: datetime
         """
-        return self._receive_timestamp
+        return self._received_at
 
-    @receive_timestamp.setter
-    def receive_timestamp(self, receive_timestamp):
-        """Sets the receive_timestamp of this ErrorReport.
+    @received_at.setter
+    def received_at(self, received_at):
+        """Sets the received_at of this ErrorReport.
 
 
-        :param receive_timestamp: The receive_timestamp of this ErrorReport.
-        :type receive_timestamp: datetime
+        :param received_at: The received_at of this ErrorReport.
+        :type received_at: datetime
         """
-        if receive_timestamp is None:
-            raise ValueError("Invalid value for `receive_timestamp`, must not be `None`")  # noqa: E501
+        if received_at is None:
+            raise ValueError("Invalid value for `received_at`, must not be `None`")  # noqa: E501
 
-        self._receive_timestamp = receive_timestamp
+        self._received_at = received_at
 
     @property
     def resource(self):

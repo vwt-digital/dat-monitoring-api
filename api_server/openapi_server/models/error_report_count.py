@@ -15,13 +15,13 @@ class ErrorReportCount(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, count=None, latest_updated=None, project_id=None, resource=None):  # noqa: E501
+    def __init__(self, count=None, updated_at=None, project_id=None, resource=None):  # noqa: E501
         """ErrorReportCount - a model defined in OpenAPI
 
         :param count: The count of this ErrorReportCount.  # noqa: E501
         :type count: int
-        :param latest_updated: The latest_updated of this ErrorReportCount.  # noqa: E501
-        :type latest_updated: datetime
+        :param updated_at: The updated_at of this ErrorReportCount.  # noqa: E501
+        :type updated_at: datetime
         :param project_id: The project_id of this ErrorReportCount.  # noqa: E501
         :type project_id: str
         :param resource: The resource of this ErrorReportCount.  # noqa: E501
@@ -29,20 +29,20 @@ class ErrorReportCount(Model):
         """
         self.openapi_types = {
             'count': int,
-            'latest_updated': datetime,
+            'updated_at': datetime,
             'project_id': str,
             'resource': object
         }
 
         self.attribute_map = {
             'count': 'count',
-            'latest_updated': 'latest_updated',
+            'updated_at': 'updated_at',
             'project_id': 'project_id',
             'resource': 'resource'
         }
 
         self._count = count
-        self._latest_updated = latest_updated
+        self._updated_at = updated_at
         self._project_id = project_id
         self._resource = resource
 
@@ -81,27 +81,27 @@ class ErrorReportCount(Model):
         self._count = count
 
     @property
-    def latest_updated(self):
-        """Gets the latest_updated of this ErrorReportCount.
+    def updated_at(self):
+        """Gets the updated_at of this ErrorReportCount.
 
 
-        :return: The latest_updated of this ErrorReportCount.
+        :return: The updated_at of this ErrorReportCount.
         :rtype: datetime
         """
-        return self._latest_updated
+        return self._updated_at
 
-    @latest_updated.setter
-    def latest_updated(self, latest_updated):
-        """Sets the latest_updated of this ErrorReportCount.
+    @updated_at.setter
+    def updated_at(self, updated_at):
+        """Sets the updated_at of this ErrorReportCount.
 
 
-        :param latest_updated: The latest_updated of this ErrorReportCount.
-        :type latest_updated: datetime
+        :param updated_at: The updated_at of this ErrorReportCount.
+        :type updated_at: datetime
         """
-        if latest_updated is None:
-            raise ValueError("Invalid value for `latest_updated`, must not be `None`")  # noqa: E501
+        if updated_at is None:
+            raise ValueError("Invalid value for `updated_at`, must not be `None`")  # noqa: E501
 
-        self._latest_updated = latest_updated
+        self._updated_at = updated_at
 
     @property
     def project_id(self):

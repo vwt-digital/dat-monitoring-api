@@ -75,7 +75,7 @@ def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
             'labels': ap.get('labels', {}),
             'log_name': ap.get('log_name', ''),
             'project_id': ap.get('project_id', ''),
-            'receive_timestamp': ap.get('receive_timestamp', ''),
+            'received_at': ap.get('receive_timestamp', ''),
             'resource': ap.get('resource', {}),
             'severity': ap.get('severity', ''),
             'text_payload': ap.get('text_payload', ''),
@@ -84,7 +84,7 @@ def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
 
         # Sort results if previous page is requested because query sort order is ascending instead of descending
         if page == 'prev':
-            results = sorted(result_items, key=lambda i: i['receive_timestamp'], reverse=True)
+            results = sorted(result_items, key=lambda i: i['received_at'], reverse=True)
             next_cursor = cursor  # Grab current cursor for next page
         else:
             results = result_items
@@ -156,10 +156,12 @@ def error_reports_counts_get(days=None, max_rows=None):  # noqa: E501
         error_list = get_latest_error(error_reporting_keys, db_client)
 
         for error in error_list:
+            error['received_at'] = error['receive_timestamp']
+            del error['receive_timestamp']
             error['count'] = error_reporting_count[error['project_id']]['count'] \
                 if error['project_id'] in error_reporting_count else ''
 
-        return sorted(error_list, key=lambda i: i['receive_timestamp'],
+        return sorted(error_list, key=lambda i: i['received_at'],
                       reverse=True)
     return make_response(jsonify([]), 204)
 

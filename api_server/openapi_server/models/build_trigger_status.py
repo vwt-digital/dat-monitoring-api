@@ -15,7 +15,7 @@ class BuildTriggerStatus(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, branch=None, project_id=None, repo_name=None, status=None, updated=None, log_url=None):  # noqa: E501
+    def __init__(self, branch=None, project_id=None, repo_name=None, status=None, updated_at=None, log_url=None):  # noqa: E501
         """BuildTriggerStatus - a model defined in OpenAPI
 
         :param branch: The branch of this BuildTriggerStatus.  # noqa: E501
@@ -26,8 +26,8 @@ class BuildTriggerStatus(Model):
         :type repo_name: str
         :param status: The status of this BuildTriggerStatus.  # noqa: E501
         :type status: str
-        :param updated: The updated of this BuildTriggerStatus.  # noqa: E501
-        :type updated: datetime
+        :param updated_at: The updated_at of this BuildTriggerStatus.  # noqa: E501
+        :type updated_at: datetime
         :param log_url: The log_url of this BuildTriggerStatus.  # noqa: E501
         :type log_url: str
         """
@@ -36,7 +36,7 @@ class BuildTriggerStatus(Model):
             'project_id': str,
             'repo_name': str,
             'status': str,
-            'updated': datetime,
+            'updated_at': datetime,
             'log_url': str
         }
 
@@ -45,7 +45,7 @@ class BuildTriggerStatus(Model):
             'project_id': 'project_id',
             'repo_name': 'repo_name',
             'status': 'status',
-            'updated': 'updated',
+            'updated_at': 'updated_at',
             'log_url': 'log_url'
         }
 
@@ -53,7 +53,7 @@ class BuildTriggerStatus(Model):
         self._project_id = project_id
         self._repo_name = repo_name
         self._status = status
-        self._updated = updated
+        self._updated_at = updated_at
         self._log_url = log_url
 
     @classmethod
@@ -164,27 +164,27 @@ class BuildTriggerStatus(Model):
         self._status = status
 
     @property
-    def updated(self):
-        """Gets the updated of this BuildTriggerStatus.
+    def updated_at(self):
+        """Gets the updated_at of this BuildTriggerStatus.
 
 
-        :return: The updated of this BuildTriggerStatus.
+        :return: The updated_at of this BuildTriggerStatus.
         :rtype: datetime
         """
-        return self._updated
+        return self._updated_at
 
-    @updated.setter
-    def updated(self, updated):
-        """Sets the updated of this BuildTriggerStatus.
+    @updated_at.setter
+    def updated_at(self, updated_at):
+        """Sets the updated_at of this BuildTriggerStatus.
 
 
-        :param updated: The updated of this BuildTriggerStatus.
-        :type updated: datetime
+        :param updated_at: The updated_at of this BuildTriggerStatus.
+        :type updated_at: datetime
         """
-        if updated is None:
-            raise ValueError("Invalid value for `updated`, must not be `None`")  # noqa: E501
+        if updated_at is None:
+            raise ValueError("Invalid value for `updated_at`, must not be `None`")  # noqa: E501
 
-        self._updated = updated
+        self._updated_at = updated_at
 
     @property
     def log_url(self):
