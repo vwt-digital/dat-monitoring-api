@@ -14,20 +14,23 @@ from google.cloud import datastore, kms
 
 
 def kms_encrypt_decrypt_cursor(cursor, type):
-    project_id = os.environ['GOOGLE_CLOUD_PROJECT']
-    location_id = "europe"
-    key_ring_id = f"{project_id}-keyring"
-    crypto_key_id = "db-cursor-key"
+    if cursor:
+        project_id = os.environ['GOOGLE_CLOUD_PROJECT']
+        location_id = "europe"
+        key_ring_id = f"{project_id}-keyring"
+        crypto_key_id = "db-cursor-key"
 
-    client = kms.KeyManagementServiceClient()
-    name = client.crypto_key_path_path(project_id, location_id, key_ring_id, crypto_key_id)
+        client = kms.KeyManagementServiceClient()
+        name = client.crypto_key_path_path(project_id, location_id, key_ring_id, crypto_key_id)
 
-    if type == 'encrypt':
-        encrypt_response = client.encrypt(name, cursor.encode())
-        response = base64.urlsafe_b64encode(encrypt_response.ciphertext).decode()
+        if type == 'encrypt':
+            encrypt_response = client.encrypt(name, cursor.encode())
+            response = base64.urlsafe_b64encode(encrypt_response.ciphertext).decode()
+        else:
+            encrypt_response = client.decrypt(name, base64.urlsafe_b64decode(cursor))
+            response = encrypt_response.plaintext
     else:
-        encrypt_response = client.decrypt(name, base64.urlsafe_b64decode(cursor))
-        response = encrypt_response.plaintext
+        response = None
 
     return response
 
@@ -185,50 +188,77 @@ def get_from_dict(data_dict, map_list):
     return reduce(operator.getitem, map_list, data_dict)
 
 
-def security_notifications_get(days=None, max_rows=100):  # noqa: E501
-    """Get a list of security notifications in last x days
+def security_notifications_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
+    """Get a list of security notifications
 
-    Get a list of security notifications in last x days # noqa: E501
+    Get a list of security notifications # noqa: E501
 
-    :param days: Total days to include
-    :type days: int
-    :param max_rows: Max rows to return
-    :type max_rows: int
+    :param page_size: The numbers of items within a page.
+    :type page_size: int
+    :param cursor: The query cursor of the page
+    :type cursor: str
+    :param page: Selector to get next or previous page based on the cursor
+    :type page: str
 
-    :rtype: List[SecurityNotification]
+    :rtype: List[SecurityNotificationResponse]
     """
 
-    if (days and days < 1) or max_rows < 1:
-        return make_response(
-            jsonify("Parameters must be more than 0"), 403)
+    if page == 'prev' and not cursor:
+        return make_response(jsonify('A cursor is required when requesting a previous page.'), 400)
 
-    # Get entity from kind
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_SCC_NOTIFICATIONS_KIND)
 
-    if days:
-        time_delta = (datetime.datetime.utcnow() - datetime.timedelta(days=days)).strftime('%Y-%m-%d')
-        query.add_filter('updated', '>=', time_delta)
+    query_params = {
+        'limit': page_size,
+        'start_cursor': kms_encrypt_decrypt_cursor(cursor, 'decrypt') if cursor else None
+    }
 
-    query.order = ['-updated']
-    db_data = query.fetch(limit=max_rows)
+    # When the previous page is requested and the latest cursor from the original query is used
+    # to get results in reverse.
+    if page == 'prev':
+        query.order = ['updated', '__key__']
+    else:
+        query.order = ['-updated', '-__key__']
+
+    query_iter = query.fetch(**query_params)  # Execute query
+
+    current_page = next(query_iter.pages)  # Setting current iterator page
+    db_data = list(current_page)  # Set page results list
 
     # Return results
     if db_data:
-        result = [{
-            'category': notification.get('category', ''),
-            'created_at': notification.get('created', ''),
+        result_items = [{
+            'category': ap.get('category', ''),
+            'created_at': ap.get('created', ''),
             'exception_instructions': get_from_dict(
-                notification, ['source', 'finding', 'sourceProperties', 'ExceptionInstructions']),
-            'explanation': get_from_dict(notification, ['source', 'finding', 'sourceProperties', 'Explanation']),
-            'external_uri': get_from_dict(notification, ['source', 'finding', 'externalUri']),
-            'id': notification.key.id_or_name,
-            'project_id': notification.get('project_id', ''),
-            'recommendation': notification.get('recommendation', ''),
-            'resource_name': get_from_dict(notification, ['source', 'finding', 'resourceName']),
-            'severity': get_from_dict(notification, ['source', 'finding', 'sourceProperties', 'SeverityLevel']),
-            'updated_at': notification.get('updated', '')
-        } for notification in db_data]
-        return result
+                ap, ['source', 'finding', 'sourceProperties', 'ExceptionInstructions']),
+            'explanation': get_from_dict(ap, ['source', 'finding', 'sourceProperties', 'Explanation']),
+            'external_uri': get_from_dict(ap, ['source', 'finding', 'externalUri']),
+            'id': ap.key.id_or_name,
+            'project_id': ap.get('project_id', ''),
+            'recommendation': ap.get('recommendation', ''),
+            'resource_name': get_from_dict(ap, ['source', 'finding', 'resourceName']),
+            'severity': get_from_dict(ap, ['source', 'finding', 'sourceProperties', 'SeverityLevel']),
+            'updated_at': ap.get('updated', ''),
+        } for ap in db_data]
 
-    return make_response(jsonify([]), 204)
+        # Sort results if previous page is requested because query sort order is ascending instead of descending
+        if page == 'prev':
+            results = sorted(result_items, key=lambda i: i['updated_at'], reverse=True)
+            next_cursor = cursor  # Grab current cursor for next page
+        else:
+            results = result_items
+            next_cursor = query_iter.next_page_token.decode() if query_iter.next_page_token else None  # Grab new cursor for next page
+    else:
+        results = []
+        next_cursor = cursor
+
+    # Create response object
+    response = {
+        'status': 'success',
+        'page_size': page_size,
+        'next_cursor': kms_encrypt_decrypt_cursor(next_cursor, 'encrypt'),
+        'results': results
+    }
+    return response

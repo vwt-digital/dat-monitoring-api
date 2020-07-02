@@ -179,28 +179,40 @@ paths:
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
   /security-notifications:
     get:
-      description: Get a list of security notifications in last x days
+      description: Get a list of security notifications
       operationId: security_notifications_get
       parameters:
-        - description: Total days to include
+        - description: The numbers of items within a page.
           explode: true
           in: query
-          name: days
+          name: page_size
           required: false
           schema:
+            default: 50
+            maximum: 100
             minimum: 1
             type: integer
           style: form
-        - description: Max rows to return
+        - description: The query cursor of the page
           explode: true
           in: query
-          name: max_rows
+          name: cursor
           required: false
           schema:
-            default: 5
-            minimum: 1
-            maximum: 100
-            type: integer
+            type: string
+            format: byte
+          style: form
+        - description: Selector to get next or previous page based on the cursor
+          explode: true
+          in: query
+          name: page
+          required: false
+          schema:
+            default: next
+            enum:
+              - prev
+              - next
+            type: string
           style: form
       responses:
         "200":
@@ -208,7 +220,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/SecurityNotification'
+                  $ref: '#/components/schemas/SecurityNotificationResponse'
                 type: array
           description: Scheme with security notifications
         "204":
@@ -231,7 +243,7 @@ paths:
               schema:
                 $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
           description: Provided token doesn't have the required scope
-      summary: Get a list of security notifications in last x days
+      summary: Get a list of security notifications
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
 components:
   parameters:
@@ -460,6 +472,40 @@ components:
         updated_at:
           format: date-time
           type: string
+      type: object
+    SecurityNotificationResponse:
+      example:
+        status: Success
+        page_size: 50
+        next_cursor: eee028e4-ef38-40fb-a92b-41c441660d2e
+        results:
+          - category: Security issue
+            created_at: 2020-01-01T12:00:00.000Z
+            exception_instructions: A security error occurred
+            explanation: You did something wrong
+            external_uri: https://external-uri.com/
+            id: 9f85595a-906f-4d48-b3da-94920c586bf4
+            project_id: project_x
+            recommendation: Try to fix it
+            resource_name: resource_y
+            severity: High
+            updated_at: 2020-01-01T12:05:00.000Z
+      properties:
+        status:
+          description: The request status.
+          type: string
+        page_size:
+          description: The current page size
+          format: int32
+          type: integer
+        next_cursor:
+          description: The next query cursor
+          type: string
+          format: byte
+        results:
+          items:
+            $ref: '#/components/schemas/SecurityNotification'
+          type: array
       type: object
   securitySchemes:
     ApiKeyAuth:
