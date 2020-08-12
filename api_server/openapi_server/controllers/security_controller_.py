@@ -1,34 +1,25 @@
 import os
-import io
 
-from google.cloud import kms_v1
+from google.cloud import secretmanager_v1
 
 
-def decrypt():
-    project_id = os.environ['GOOGLE_CLOUD_PROJECT']
-    location_id = "europe"
-    key_ring_id = "api-key"
-    crypto_key_id = "api-key-monitoring"
+def get_secret():
 
-    # Creates an API client for the KMS API.
-    client = kms_v1.KeyManagementServiceClient()
+    client = secretmanager_v1.SecretManagerServiceClient()
 
-    # The resource name of the CryptoKey.
-    name = client.crypto_key_path_path(project_id, location_id, key_ring_id,
-                                       crypto_key_id)
+    secret_name = client.secret_version_path(
+        os.environ['GOOGLE_CLOUD_PROJECT'],
+        '{}-api-key'.format(os.environ['GOOGLE_CLOUD_PROJECT']),
+        'latest')
 
-    # Use the KMS API to decrypt the data.
-    with io.open('api-credentials.enc', "rb") as file:
-        c_text = file.read()
+    response = client.access_secret_version(secret_name)
+    payload = response.payload.data.decode('utf-8').replace('\n', '')
 
-    response = client.decrypt(name, c_text)
-    secret_dict = response.plaintext.decode("utf-8").replace('\n', '')
-
-    return secret_dict
+    return payload
 
 
 decrypted_apikey = None
-decrypted_apikey = decrypt()
+decrypted_apikey = get_secret()
 
 
 def info_from_ApiKeyAuth(api_key, required_scopes):
