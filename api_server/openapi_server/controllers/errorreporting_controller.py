@@ -4,7 +4,6 @@ import datetime
 import itertools
 import base64
 import operator
-import numpy as np
 
 from flask import jsonify
 from flask import make_response
@@ -158,7 +157,9 @@ def error_reports_counts_get(days=None, max_rows=None):  # noqa: E501
                 error_reporting_keys.append(
                     error_reporting_count[key]['latest_errorreporting_key'])
 
-        error_list = get_latest_error(error_reporting_keys, db_client)
+        # Get latest errors per project
+        error_batch_keys = [db_client.key(config.DB_ERROR_REPORTING_KIND, key) for key in error_reporting_keys]
+        error_list = db_client.get_multi(error_batch_keys)
 
         for error in error_list:
             error['received_at'] = error['receive_timestamp']
@@ -166,21 +167,8 @@ def error_reports_counts_get(days=None, max_rows=None):  # noqa: E501
             error['count'] = error_reporting_count[error['project_id']]['count'] \
                 if error['project_id'] in error_reporting_count else ''
 
-        return sorted(error_list, key=lambda i: i['received_at'],
-                      reverse=True)
+        return sorted(error_list, key=lambda i: i['received_at'], reverse=True)
     return make_response(jsonify([]), 204)
-
-
-def get_latest_error(keys, db_client):
-    error_keys = []
-    for chunk in np.array_split(keys, 500):
-        error_batch_keys = []
-        for key in chunk:
-            error_batch_keys.append(
-                db_client.key(config.DB_ERROR_REPORTING_KIND, key))
-        error_keys = error_keys + db_client.get_multi(error_batch_keys)
-
-    return error_keys
 
 
 def get_from_dict(data_dict, map_list):
