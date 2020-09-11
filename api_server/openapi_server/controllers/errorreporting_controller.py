@@ -4,6 +4,7 @@ import datetime
 import itertools
 import base64
 import operator
+import logging
 
 from flask import jsonify
 from flask import make_response
@@ -19,15 +20,19 @@ def kms_encrypt_decrypt_cursor(cursor, type):
         key_ring_id = f"{project_id}-keyring"
         crypto_key_id = "db-cursor-key"
 
-        client = kms.KeyManagementServiceClient()
-        name = client.crypto_key_path_path(project_id, location_id, key_ring_id, crypto_key_id)
+        try:
+            client = kms.KeyManagementServiceClient()
+            name = client.crypto_key_path_path(project_id, location_id, key_ring_id, crypto_key_id)
 
-        if type == 'encrypt':
-            encrypt_response = client.encrypt(name, cursor.encode())
-            response = base64.urlsafe_b64encode(encrypt_response.ciphertext).decode()
-        else:
-            encrypt_response = client.decrypt(name, base64.urlsafe_b64decode(cursor))
-            response = encrypt_response.plaintext
+            if type == 'encrypt':
+                encrypt_response = client.encrypt(name, cursor.encode() if isinstance(cursor, str) else cursor)
+                response = base64.urlsafe_b64encode(encrypt_response.ciphertext).decode()
+            else:
+                encrypt_response = client.decrypt(name, base64.urlsafe_b64decode(cursor))
+                response = encrypt_response.plaintext
+        except Exception as e:
+            logging.error(f"An exception occurred when {type}-ing a cursor: {str(e)}")
+            return None
     else:
         response = None
 
@@ -55,9 +60,11 @@ def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_REPORTING_KIND)
 
+    current_cursor = kms_encrypt_decrypt_cursor(cursor, 'decrypt')
+
     query_params = {
         'limit': page_size,
-        'start_cursor': kms_encrypt_decrypt_cursor(cursor, 'decrypt') if cursor else None
+        'start_cursor': current_cursor
     }
 
     # When the previous page is requested and the latest cursor from the original query is used
@@ -68,7 +75,6 @@ def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
         query.order = ['-receive_timestamp', '-__key__']
 
     query_iter = query.fetch(**query_params)  # Execute query
-
     current_page = next(query_iter.pages)  # Setting current iterator page
     db_data = list(current_page)  # Set page results list
 
@@ -89,13 +95,14 @@ def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
         # Sort results if previous page is requested because query sort order is ascending instead of descending
         if page == 'prev':
             results = sorted(result_items, key=lambda i: i['received_at'], reverse=True)
-            next_cursor = cursor  # Grab current cursor for next page
+            next_cursor = current_cursor  # Grab current cursor for next page
         else:
             results = result_items
-            next_cursor = query_iter.next_page_token.decode()  # Grab new cursor for next page
+            next_cursor = query_iter.next_page_token.decode() if \
+                query_iter.next_page_token else None  # Grab new cursor for next page
     else:
         results = []
-        next_cursor = cursor
+        next_cursor = current_cursor
 
     # Create response object
     response = {
