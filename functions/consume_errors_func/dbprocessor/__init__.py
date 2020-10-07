@@ -35,8 +35,15 @@ class DBProcessor(object):
                     and 'project_id' in payload['resource']['labels']:
                 payload['project_id'] = payload['resource']['labels']['project_id']
 
-            self.populate_from_payload(self, entity, payload)
-            self.populate_count_from_payload(self, payload, entity_key_name)
+            error_key_name = '{}_{}'.format(payload['project_id'], datetime.datetime.utcnow().strftime("%Y-%m-%d"))
+
+            try:
+                with self.client.transaction():
+                    self.populate_from_payload(self, entity, payload)
+                    self.populate_count_from_payload(self, payload, entity_key_name, error_key_name)
+            except Exception as e:
+                print(f"An exception occurred when updating '{error_key_name}': {str(e)}")
+                raise e
 
     @staticmethod
     def populate_from_payload(self, entity, payload):
@@ -64,9 +71,7 @@ class DBProcessor(object):
         self.client.put(entity)
 
     @staticmethod
-    def populate_count_from_payload(self, payload, entity_key_name):
-        error_key_name = '{}_{}'.format(payload['project_id'], datetime.datetime.utcnow().strftime("%Y-%m-%d"))
-
+    def populate_count_from_payload(self, payload, entity_key_name, error_key_name):
         error_count_key = self.client.key(config.DB_ERROR_COUNT_KIND, error_key_name)
         error_count = self.client.get(error_count_key)
 
