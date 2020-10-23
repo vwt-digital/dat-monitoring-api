@@ -4,7 +4,7 @@ import json
 
 import config
 from google.cloud import datastore
-from google.api_core import gcp_exceptions
+from google.api_core import exceptions as gcp_exceptions
 from retry import retry
 
 
