@@ -4,6 +4,8 @@ import json
 
 import config
 from google.cloud import datastore
+from google.api_core import exceptions as gcp_exceptions
+from retry import retry
 
 
 class DBProcessor(object):
@@ -35,15 +37,15 @@ class DBProcessor(object):
                     and 'project_id' in payload['resource']['labels']:
                 payload['project_id'] = payload['resource']['labels']['project_id']
 
-            error_key_name = '{}_{}'.format(payload['project_id'], datetime.datetime.utcnow().strftime("%Y-%m-%d"))
+            self.populate_data(entity, payload, entity_key_name)
 
-            try:
-                with self.client.transaction():
-                    self.populate_from_payload(self, entity, payload)
-                    self.populate_count_from_payload(self, payload, entity_key_name, error_key_name)
-            except Exception as e:
-                print(f"An exception occurred when updating '{error_key_name}': {str(e)}")
-                raise e
+    @retry(gcp_exceptions.Aborted, tries=3, delay=2, backoff=2)
+    def populate_data(self, entity, payload, entity_key_name):
+        error_key_name = '{}_{}'.format(payload['project_id'], datetime.datetime.utcnow().strftime("%Y-%m-%d"))
+
+        with self.client.transaction():
+            self.populate_from_payload(self, entity, payload)
+            self.populate_count_from_payload(self, payload, entity_key_name, error_key_name)
 
     @staticmethod
     def populate_from_payload(self, entity, payload):
