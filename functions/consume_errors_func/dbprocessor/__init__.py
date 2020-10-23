@@ -39,7 +39,7 @@ class DBProcessor(object):
 
             self.populate_data(entity, payload, entity_key_name)
 
-    @retry(gcp_exceptions.Aborted, tries=3, delay=2, backoff=2)
+    @retry(gcp_exceptions.Aborted, tries=3, delay=2, backoff=2, logger=None)
     def populate_data(self, entity, payload, entity_key_name):
         error_key_name = '{}_{}'.format(payload['project_id'], datetime.datetime.utcnow().strftime("%Y-%m-%d"))
 
