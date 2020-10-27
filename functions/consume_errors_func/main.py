@@ -4,6 +4,7 @@ import base64
 import os
 
 from dbprocessor import DBProcessor
+from google.api_core import exceptions as gcp_exceptions
 
 parser = DBProcessor()
 verification_token = os.environ['PUBSUB_VERIFICATION_TOKEN']
@@ -23,7 +24,9 @@ def topic_to_datastore(request):
         logging.info(f'Message received from {subscription} [{payload}]')
 
         parser.process(json.loads(payload))
-
+    except gcp_exceptions as e:
+        logging.info(f"Extraction failed due to: {e}")
+        return 408
     except Exception as e:
         logging.info('Extract of subscription failed')
         logging.debug(e)

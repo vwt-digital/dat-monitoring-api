@@ -1,11 +1,12 @@
 import datetime
 import uuid
 import json
+import random
 
 import config
 from google.cloud import datastore
 from google.api_core import exceptions as gcp_exceptions
-from retry import retry
+from retry.api import retry_call
 
 
 class DBProcessor(object):
@@ -37,9 +38,10 @@ class DBProcessor(object):
                     and 'project_id' in payload['resource']['labels']:
                 payload['project_id'] = payload['resource']['labels']['project_id']
 
-            self.populate_data(entity, payload, entity_key_name)
+            retry_call(
+                self.populate_data, fargs=[entity, payload, entity_key_name], exceptions=gcp_exceptions.Aborted,
+                tries=10, delay=random.randint(2, 5), jitter=(1, 5), logger=None)  # nosec
 
-    @retry(gcp_exceptions.Aborted, tries=3, delay=2, backoff=2, logger=None)
     def populate_data(self, entity, payload, entity_key_name):
         error_key_name = '{}_{}'.format(payload['project_id'], datetime.datetime.utcnow().strftime("%Y-%m-%d"))
 
