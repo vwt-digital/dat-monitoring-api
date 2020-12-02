@@ -26,7 +26,7 @@ def topic_to_datastore(request):
     except Exception as e:
         logging.info('Extract of subscription failed')
         logging.debug(e)
-        return 409
+        return 'Conflict', 409
 
     # Returning any 2xx status indicates successful receipt of the message.
     # 204: no content, delivery successfull, no further actions needed
