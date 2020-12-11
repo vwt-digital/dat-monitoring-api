@@ -10,3 +10,5 @@ def topic_to_topic(request):
     payload = base64.b64decode(envelope['message']['data'])
 
     logging.info(payload)
+
+    return 'OK', 204
