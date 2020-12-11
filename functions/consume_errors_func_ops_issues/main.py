@@ -3,9 +3,9 @@ import json
 import logging
 import config
 
-from google.cloud import pusbsub_v1
+from google.cloud import pubsub_v1
 
-publisher = pusbsub_v1.PublisherClient()
+publisher = pubsub_v1.PublisherClient()
 
 
 def topic_to_topic(request):
