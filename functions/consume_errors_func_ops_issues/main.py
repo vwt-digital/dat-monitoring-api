@@ -21,16 +21,11 @@ def topic_to_topic(request):
 
         # Publish to ops-issues here
         topic_path = publisher.topic_path(config.ODH_PROJECT, config.OPS_ISSUES)
-        future = publisher.publish(topic_path, json.dumps(payload).encode('utf-8'))
-        future.add_done_callback(
-            lambda x: logging.info(
-                'Published msg with ID {}'.format(
-                    future.result()))
-        )
+        publisher.publish(topic_path, payload)
 
     except Exception as e:
         logging.info('Extract of subscription failed')
-        logging.debug(e)
+        logging.exception(e)
         return 'Conflict', 409
 
     # Returning any 2xx status indicates successful receipt of the message.
