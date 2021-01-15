@@ -43,10 +43,11 @@ def topic_to_topic(request):
         logging.info('Extract of subscription failed')
         logging.exception(e)
         return 'Conflict', 409
-
-    if not check_conditions(title_type=subscription, payload=payload):
+    if not hasattr(config, 'ISSUE_TITLES'):
+        logging.info(f'Not formatting issue from {subscription} because of development subscription.')
+    elif not check_conditions(title_type=subscription, payload=payload):
         logging.info(f'Not formatting issue from {subscription} because of failing conditions.')
-    elif hasattr(config, 'ISSUE_TITLES'):
+    else:
         title = get_issue_title(title_type=subscription, payload=payload)
 
         formatted = base64.b64decode({title: payload})
@@ -54,8 +55,6 @@ def topic_to_topic(request):
         # Publish to ops-issues here
         topic_path = publisher.topic_path(config.ODH_PROJECT, config.OPS_ISSUES)
         publisher.publish(topic_path, formatted)
-    else:
-        logging.info(f'Not formatting issue from {subscription} because of development subscription.')
 
     # Returning any 2xx status indicates successful receipt of the message.
     # 204: no content, delivery successful, no further actions needed
