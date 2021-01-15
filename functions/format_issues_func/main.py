@@ -1,6 +1,8 @@
 import base64
 import json
 import logging
+from functools import reduce
+
 import config
 
 from google.cloud import pubsub_v1
@@ -8,14 +10,22 @@ from google.cloud import pubsub_v1
 publisher = pubsub_v1.PublisherClient()
 
 
-def get_issue_title(title_type: str, **kwargs) -> str:
-    return config.ISSUE_TITLES[title_type].format(**kwargs)
+def get_issue_title(title_type, payload):
+    issue_type = config.ISSUE_TITLES[title_type]
+    variables = {}
+    for key, value in issue_type['variables'].iteritems():
+        variables[key] = get_variable_value(payload=payload, keys=value)
+    return issue_type['title'].format(**variables)
+
+
+def get_variable_value(payload, keys):
+    return reduce(lambda d, key: d.get(key) if d else None, keys, payload)
 
 
 def topic_to_topic(request):
     # Extract data from request
     envelope = json.loads(request.data.decode('utf-8'))
-    payload = json.loads(base64.b64decode(envelope['message']['data']))
+    payload = json.loads(base64.b64decode(envelope['message']['data']))[0]
 
     # Extract subscription from subscription string
     try:
@@ -27,8 +37,7 @@ def topic_to_topic(request):
         return 'Conflict', 409
 
     if hasattr(config, 'ISSUE_TITLES'):
-        title = get_issue_title(title_type=subscription, project_id=payload['resource']['labels']['project_id'],
-                                issue_type=payload['resource']['type'])
+        title = get_issue_title(title_type=subscription, payload=payload)
 
         formatted = base64.b64decode({title: payload})
 
