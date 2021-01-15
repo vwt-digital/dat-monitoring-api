@@ -34,10 +34,10 @@ class DBProcessor(object):
                 repo_name = payload['substitutions']['REPO_NAME']
                 branch = payload['substitutions']['BRANCH_NAME']
             elif 'dcat-deploy/backup/run_backup.sh' in payload_dump and \
-                    '_DCAT_DEPLOY_BRANCH_NAME' in payload.get('substitutions', {}):
+                    '_BRANCH_NAME' in payload.get('substitutions', {}):
                 correct_build = True
                 repo_name = 'backup'
-                branch = payload['substitutions']['_DCAT_DEPLOY_BRANCH_NAME']
+                branch = payload['substitutions']['_BRANCH_NAME']
 
         if correct_build:
             # Set some variables
