@@ -13,13 +13,15 @@ publisher = pubsub_v1.PublisherClient()
 def get_issue_title(title_type, payload):
     issue_type = config.ISSUE_TITLES[title_type]
     variables = {}
-    for key, value in issue_type['variables'].iteritems():
+    for key, value in issue_type['variables'].items():
         variables[key] = get_variable_value(payload=payload, keys=value)
     return issue_type['title'].format(**variables)
 
 
 def check_conditions(title_type, payload):
     issue_type = config.ISSUE_TITLES[title_type]
+    if 'conditions' not in issue_type:
+        return True
     for condition in issue_type['conditions']:
         if get_variable_value(payload=payload, keys=condition['variable']) not in condition['shouldBe']:
             return False
@@ -50,7 +52,7 @@ def topic_to_topic(request):
     else:
         title = get_issue_title(title_type=subscription, payload=payload)
 
-        formatted = base64.b64decode({title: payload})
+        formatted = json.dumps({title: payload}, indent=2).encode('utf-8')
 
         # Publish to ops-issues here
         topic_path = publisher.topic_path(config.ODH_PROJECT, config.OPS_ISSUES)
