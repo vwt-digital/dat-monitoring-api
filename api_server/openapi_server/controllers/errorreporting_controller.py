@@ -13,7 +13,7 @@ from functools import reduce
 from google.cloud import datastore, kms
 
 
-def kms_encrypt_decrypt_cursor(cursor, type):
+def kms_encrypt_decrypt_cursor(cursor, process):
     if cursor:
         project_id = os.environ['GOOGLE_CLOUD_PROJECT']
         location_id = "europe"
@@ -24,14 +24,14 @@ def kms_encrypt_decrypt_cursor(cursor, type):
             client = kms.KeyManagementServiceClient()
             name = client.crypto_key_path_path(project_id, location_id, key_ring_id, crypto_key_id)
 
-            if type == 'encrypt':
+            if process == 'encrypt':
                 encrypt_response = client.encrypt(name, cursor.encode() if isinstance(cursor, str) else cursor)
                 response = base64.urlsafe_b64encode(encrypt_response.ciphertext).decode()
             else:
                 encrypt_response = client.decrypt(name, base64.urlsafe_b64decode(cursor))
                 response = encrypt_response.plaintext
         except Exception as e:
-            logging.error(f"An exception occurred when {type}-ing a cursor: {str(e)}")
+            logging.error(f"An exception occurred when {process}-ing a cursor: {str(e)}")
             return None
     else:
         response = None

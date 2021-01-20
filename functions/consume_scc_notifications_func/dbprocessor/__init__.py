@@ -6,7 +6,6 @@ import datetime
 class DBProcessor(object):
     def __init__(self):
         self.client = datastore.Client()
-        pass
 
     def process(self, payload):
         # Set some variables

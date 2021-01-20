@@ -12,7 +12,6 @@ from retry.api import retry_call
 class DBProcessor(object):
     def __init__(self):
         self.client = datastore.Client()
-        pass
 
     def process(self, payload):
         entity_key_name = str(uuid.uuid4())
