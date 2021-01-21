@@ -45,8 +45,8 @@ def topic_to_topic(request):
         logging.info('Extract of subscription failed')
         logging.exception(e)
         return 'Conflict', 409
-    if not hasattr(config, 'ISSUE_TITLES'):
-        logging.info(f'Not formatting issue from {subscription} because of development subscription.')
+    if not hasattr(config, 'ISSUE_TITLES') or subscription not in config.ISSUE_TITLES:
+        logging.info(f'Not formatting issue from {subscription} because of missing title subscription.')
     elif not check_conditions(title_type=subscription, payload=payload):
         logging.info(f'Not formatting issue from {subscription} because of failing conditions.')
     else:
