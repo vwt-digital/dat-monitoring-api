@@ -2,6 +2,7 @@ import base64
 import json
 import logging
 from functools import reduce
+from gobits import Gobits
 
 import config
 
@@ -52,7 +53,8 @@ def topic_to_topic(request):
     else:
         title = get_issue_title(title_type=subscription, payload=payload)
 
-        formatted = json.dumps({title: payload}, indent=2).encode('utf-8')
+        formatted = json.dumps({"gobits": [Gobits().to_json()], "issue": {"title": title, "payload": payload}},
+                               indent=2).encode('utf-8')
 
         # Publish to ops-issues here
         topic_path = publisher.topic_path(config.ODH_PROJECT, config.OPS_ISSUES)
