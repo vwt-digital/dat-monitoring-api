@@ -36,4 +36,3 @@ setup(
     Endpoint to retreive all DAT Monitoring metrics
     """
 )
-

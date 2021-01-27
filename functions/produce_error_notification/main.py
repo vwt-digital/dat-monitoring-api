@@ -119,7 +119,6 @@ class GmailClient(object):
                 self.gmail_service.users().messages().send(userId=self.subject_address, body=body).execute()
             except Exception as e:
                 logging.error('Mail not send because of exception: {}'.format(str(e)))
-                pass
 
     def create_mail(self, message, properties):
         msg = MIMEMultipart("alternative")
@@ -145,7 +144,7 @@ class Datastore(object):
     def retrieve_data(self, properties, interval=60):
         if not validate_dict_keys(("kind", "filters"), properties):
             return None
-        elif len(properties['filters']) <= 0:
+        if len(properties['filters']) <= 0:
             logging.error('No filters found for this notification')
             return None
 

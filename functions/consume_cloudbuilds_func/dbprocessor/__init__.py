@@ -20,7 +20,6 @@ def parse_status(payload):
 class DBProcessor(object):
     def __init__(self):
         self.client = datastore.Client()
-        pass
 
     def process(self, payload):
         payload_dump = json.dumps(payload)

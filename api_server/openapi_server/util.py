@@ -17,13 +17,13 @@ def _deserialize(data, klass):
 
     if klass in six.integer_types or klass in (float, str, bool):
         return _deserialize_primitive(data, klass)
-    elif klass == object:
+    if klass == object:
         return _deserialize_object(data)
-    elif klass == datetime.date:
+    if klass == datetime.date:
         return deserialize_date(data)
-    elif klass == datetime.datetime:
+    if klass == datetime.datetime:
         return deserialize_datetime(data)
-    elif type(klass) == typing.GenericMeta:
+    if isinstance(klass, typing.GenericMeta):
         if klass.__extra__ == list:
             return _deserialize_list(data, klass.__args__[0])
         if klass.__extra__ == dict:
