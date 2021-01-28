@@ -40,7 +40,7 @@ class DBProcessor(object):
             elif 'python3 aggregate.py -c data_catalog.json' in payload_dump and \
                     '_BRANCH_NAME' in payload.get('substitutions', {}):
                 correct_build = True
-                repo_name = 'backup aggregation'
+                repo_name = 'backup_aggregation'
                 branch = payload['substitutions']['_BRANCH_NAME']
 
         if correct_build:
