@@ -9,7 +9,7 @@ class DBProcessor(object):
 
     def process(self, payload):
         # Set some variables
-        project_id = payload['finding']['sourceProperties']['ProjectId']
+        project_id = payload['resource', 'projectDisplayName']
         create_time = payload['finding']['createTime']
         notification_id = payload['finding']['name']
         recommendation = payload['finding']['sourceProperties']['Recommendation']
