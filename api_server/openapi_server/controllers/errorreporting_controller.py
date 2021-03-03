@@ -22,13 +22,15 @@ def kms_encrypt_decrypt_cursor(cursor, process):
 
         try:
             client = kms.KeyManagementServiceClient()
-            name = client.crypto_key_path_path(project_id, location_id, key_ring_id, crypto_key_id)
+            name = client.crypto_key_path(project_id, location_id, key_ring_id, crypto_key_id)
 
             if process == 'encrypt':
-                encrypt_response = client.encrypt(name, cursor.encode() if isinstance(cursor, str) else cursor)
+                text = cursor.encode() if isinstance(cursor, str) else cursor
+                encrypt_response = client.encrypt(name=name, plaintext=text)
                 response = base64.urlsafe_b64encode(encrypt_response.ciphertext).decode()
             else:
-                encrypt_response = client.decrypt(name, base64.urlsafe_b64decode(cursor))
+                text = base64.urlsafe_b64decode(cursor)
+                encrypt_response = client.decrypt(name=name, ciphertext=text)
                 response = encrypt_response.plaintext
         except Exception as e:
             logging.error(f"An exception occurred when {process}-ing a cursor: {str(e)}")

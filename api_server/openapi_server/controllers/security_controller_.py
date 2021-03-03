@@ -12,7 +12,7 @@ def get_secret():
         '{}-api-key'.format(os.environ['GOOGLE_CLOUD_PROJECT']),
         'latest')
 
-    response = client.access_secret_version(secret_name)
+    response = client.access_secret_version(request={"name": secret_name})
     payload = response.payload.data.decode('utf-8').replace('\n', '')
 
     return payload
