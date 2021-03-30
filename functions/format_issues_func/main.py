@@ -63,10 +63,13 @@ def topic_to_topic(request):
         title = get_issue_title(title_type=subscription, payload=payload)
 
         if not title:
-            return (
+            logging.exception(
                 f"Failed to create title with {payload}."
                 f"This is most likely not caused by the config, "
-                f"but by an invalid payload provided by an external service.",
+                f"but by an invalid payload provided by an external service."
+            )
+            return (
+                "Unprocessable Entity",
                 422,
             )
 
