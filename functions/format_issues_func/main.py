@@ -9,6 +9,9 @@ from google.cloud import pubsub_v1
 
 publisher = pubsub_v1.PublisherClient()
 
+logging.basicConfig(level=logging.INFO)
+logging.getLogger("google.resumable_media._helpers").setLevel(level=logging.ERROR)
+
 
 def get_issue_title(title_type, payload):
     issue_type = config.ISSUE_TITLES[title_type]
@@ -76,7 +79,11 @@ def topic_to_topic(request):
         formatted = json.dumps(
             {
                 "gobits": [Gobits().to_json()],
-                "issue": {"title": title, "payload": payload},
+                "issue": {
+                    "title": title,
+                    "category": config.ISSUE_TITLES[subscription].get("category", ""),
+                    "payload": payload,
+                },
             },
             indent=2,
         ).encode("utf-8")
