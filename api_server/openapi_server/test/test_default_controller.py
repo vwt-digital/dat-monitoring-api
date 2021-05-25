@@ -17,17 +17,15 @@ from openapi_server.test import BaseTestCase
 class TestDefaultController(BaseTestCase):
     """DefaultController integration test stubs"""
 
-    def __init__(self):
-        self.api_key = os.environ.get("API_KEY")
-
     def test_build_statuses_triggers_get(self):
         """Test case for build_statuses_triggers_get
 
         Get all build trigger statuses
         """
+        api_key = os.environ.get("API_KEY")
         headers = {
             "Accept": "application/json",
-            "x-api-key": self.api_key,
+            "x-api-key": api_key,
         }
         response = self.client.open(
             "/build-statuses-triggers", method="GET", headers=headers
@@ -39,9 +37,10 @@ class TestDefaultController(BaseTestCase):
 
         Get count of project errors reportings in last x days
         """
+        api_key = os.environ.get("API_KEY")
         headers = {
             "Accept": "application/json",
-            "x-api-key": self.api_key,
+            "x-api-key": api_key,
         }
         response = self.client.open(
             "/error-reports/counts?days={days}&max_rows={max_rows}".format(
@@ -57,9 +56,10 @@ class TestDefaultController(BaseTestCase):
 
         Get errors reportings
         """
+        api_key = os.environ.get("API_KEY")
         headers = {
             "Accept": "application/json",
-            "x-api-key": self.api_key,
+            "x-api-key": api_key,
         }
         response = self.client.open(
             "/error-reports?page_size={page_size}&page={page}".format(
