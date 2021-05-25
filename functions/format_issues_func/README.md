@@ -20,7 +20,7 @@ The variable ```ISSUE_TITLES``` can look as follows:
         "conditions": [
             {
               "variable": ["status"], 
-              "shouldBe": ["FAILURE", "TIMEOUT", "CANCELLED"]
+              "shouldBe": ["status1", "status2", "status3"]
             }
         ],
         "category": "category1",
@@ -92,7 +92,7 @@ An example message for ```subscription_title1``` and ```subscription_title2``` d
 {
   "gobits": [ ],
   "project_id": "1",
-  "status": "FAILURE",
+  "status": "status2",
   "resource": {
     "project_id": "1",
     "type": "a_type"
