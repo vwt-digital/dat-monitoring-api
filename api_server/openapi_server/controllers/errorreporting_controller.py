@@ -1,39 +1,43 @@
-import config
-import os
+import base64
 import datetime
 import itertools
-import base64
-import operator
 import logging
-
-from flask import jsonify
-from flask import make_response
-
+import operator
+import os
 from functools import reduce
+
+import config
+from flask import jsonify, make_response
 from google.cloud import datastore, kms
 
 
 def kms_encrypt_decrypt_cursor(cursor, process):
     if cursor:
-        project_id = os.environ['GOOGLE_CLOUD_PROJECT']
+        project_id = os.environ["GOOGLE_CLOUD_PROJECT"]
         location_id = "europe"
         key_ring_id = f"{project_id}-keyring"
         crypto_key_id = "db-cursor-key"
 
         try:
             client = kms.KeyManagementServiceClient()
-            name = client.crypto_key_path(project_id, location_id, key_ring_id, crypto_key_id)
+            name = client.crypto_key_path(
+                project_id, location_id, key_ring_id, crypto_key_id
+            )
 
-            if process == 'encrypt':
+            if process == "encrypt":
                 text = cursor.encode() if isinstance(cursor, str) else cursor
                 encrypt_response = client.encrypt(name=name, plaintext=text)
-                response = base64.urlsafe_b64encode(encrypt_response.ciphertext).decode()
+                response = base64.urlsafe_b64encode(
+                    encrypt_response.ciphertext
+                ).decode()
             else:
                 text = base64.urlsafe_b64decode(cursor)
                 encrypt_response = client.decrypt(name=name, ciphertext=text)
                 response = encrypt_response.plaintext
         except Exception as e:
-            logging.error(f"An exception occurred when {process}-ing a cursor: {str(e)}")
+            logging.error(
+                f"An exception occurred when {process}-ing a cursor: {str(e)}"
+            )
             return None
     else:
         response = None
@@ -41,7 +45,7 @@ def kms_encrypt_decrypt_cursor(cursor, process):
     return response
 
 
-def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
+def error_reports_get(page_size=50, cursor=None, page="Next"):  # noqa: E501
     """Get errors reportings
 
     Get a list of errors reportings # noqa: E501
@@ -56,25 +60,24 @@ def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
     :rtype: List[ErrorReportResponse]
     """
 
-    if page == 'prev' and not cursor:
-        return make_response(jsonify('A cursor is required when requesting a previous page.'), 400)
+    if page == "prev" and not cursor:
+        return make_response(
+            jsonify("A cursor is required when requesting a previous page."), 400
+        )
 
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_REPORTING_KIND)
 
-    current_cursor = kms_encrypt_decrypt_cursor(cursor, 'decrypt')
+    current_cursor = kms_encrypt_decrypt_cursor(cursor, "decrypt")
 
-    query_params = {
-        'limit': page_size,
-        'start_cursor': current_cursor
-    }
+    query_params = {"limit": page_size, "start_cursor": current_cursor}
 
     # When the previous page is requested and the latest cursor from the original query is used
     # to get results in reverse.
-    if page == 'prev':
-        query.order = ['receive_timestamp', '__key__']
+    if page == "prev":
+        query.order = ["receive_timestamp", "__key__"]
     else:
-        query.order = ['-receive_timestamp', '-__key__']
+        query.order = ["-receive_timestamp", "-__key__"]
 
     query_iter = query.fetch(**query_params)  # Execute query
     current_page = next(query_iter.pages)  # Setting current iterator page
@@ -82,36 +85,42 @@ def error_reports_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
 
     # Return results
     if db_data:
-        result_items = [{
-            'id': ap.get('insert_id', ''),
-            'labels': ap.get('labels', {}),
-            'log_name': ap.get('log_name', ''),
-            'project_id': ap.get('project_id', ''),
-            'received_at': ap.get('receive_timestamp', ''),
-            'resource': ap.get('resource', {}),
-            'severity': ap.get('severity', ''),
-            'text_payload': ap.get('text_payload', ''),
-            'trace': ap.get('trace', ''),
-        } for ap in db_data]
+        result_items = [
+            {
+                "id": ap.get("insert_id", ""),
+                "labels": ap.get("labels", {}),
+                "log_name": ap.get("log_name", ""),
+                "project_id": ap.get("project_id", ""),
+                "received_at": ap.get("receive_timestamp", ""),
+                "resource": ap.get("resource", {}),
+                "severity": ap.get("severity", ""),
+                "text_payload": ap.get("text_payload", ""),
+                "trace": ap.get("trace", ""),
+            }
+            for ap in db_data
+        ]
 
         # Sort results if previous page is requested because query sort order is ascending instead of descending
-        if page == 'prev':
-            results = sorted(result_items, key=lambda i: i['received_at'], reverse=True)
+        if page == "prev":
+            results = sorted(result_items, key=lambda i: i["received_at"], reverse=True)
             next_cursor = current_cursor  # Grab current cursor for next page
         else:
             results = result_items
-            next_cursor = query_iter.next_page_token.decode() if \
-                query_iter.next_page_token else None  # Grab new cursor for next page
+            next_cursor = (
+                query_iter.next_page_token.decode()
+                if query_iter.next_page_token
+                else None
+            )  # Grab new cursor for next page
     else:
         results = []
         next_cursor = current_cursor
 
     # Create response object
     response = {
-        'status': 'success',
-        'page_size': page_size,
-        'next_cursor': kms_encrypt_decrypt_cursor(next_cursor, 'encrypt'),
-        'results': results
+        "status": "success",
+        "page_size": page_size,
+        "next_cursor": kms_encrypt_decrypt_cursor(next_cursor, "encrypt"),
+        "results": results,
     }
     return response
 
@@ -130,17 +139,17 @@ def error_reports_counts_get(days=None, max_rows=None):  # noqa: E501
     """
 
     if days < 1 or max_rows < 1:
-        return make_response(
-            jsonify("Parameters must be more than 0"), 403)
+        return make_response(jsonify("Parameters must be more than 0"), 403)
 
-    time_delta = (datetime.datetime.utcnow() - datetime.timedelta(
-        days=days)).strftime('%Y-%m-%d')
+    time_delta = (datetime.datetime.utcnow() - datetime.timedelta(days=days)).strftime(
+        "%Y-%m-%d"
+    )
 
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_COUNT_KIND)
-    query.add_filter('date', '>=', time_delta)
-    query.distinct_on = ['date', 'updated', 'project_id']
-    query.order = ['-date', '-updated', 'project_id']
+    query.add_filter("date", ">=", time_delta)
+    query.distinct_on = ["date", "updated", "project_id"]
+    query.order = ["-date", "-updated", "project_id"]
     db_data = query.fetch()
 
     if db_data:
@@ -148,35 +157,45 @@ def error_reports_counts_get(days=None, max_rows=None):  # noqa: E501
         error_reporting_keys = []
 
         for error_count in db_data:
-            project_id = error_count['project_id']
+            project_id = error_count["project_id"]
 
-            if 'count' in error_count:
+            if "count" in error_count:
                 if project_id in error_reporting_count:
-                    error_reporting_count[project_id]['count'] = \
-                        error_reporting_count[project_id]['count'] + \
-                        error_count['count']
+                    error_reporting_count[project_id]["count"] = (
+                        error_reporting_count[project_id]["count"]
+                        + error_count["count"]
+                    )
                 else:
                     error_reporting_count[project_id] = {
-                        'count': error_count['count'],
-                        'latest_errorreporting_key': error_count['latest_errorreporting_key']
+                        "count": error_count["count"],
+                        "latest_errorreporting_key": error_count[
+                            "latest_errorreporting_key"
+                        ],
                     }
 
         for key in itertools.islice(error_reporting_count, max_rows):
-            if 'latest_errorreporting_key' in error_reporting_count[key]:
+            if "latest_errorreporting_key" in error_reporting_count[key]:
                 error_reporting_keys.append(
-                    error_reporting_count[key]['latest_errorreporting_key'])
+                    error_reporting_count[key]["latest_errorreporting_key"]
+                )
 
         # Get latest errors per project
-        error_batch_keys = [db_client.key(config.DB_ERROR_REPORTING_KIND, key) for key in error_reporting_keys]
+        error_batch_keys = [
+            db_client.key(config.DB_ERROR_REPORTING_KIND, key)
+            for key in error_reporting_keys
+        ]
         error_list = db_client.get_multi(error_batch_keys)
 
         for error in error_list:
-            error['received_at'] = error['receive_timestamp']
-            del error['receive_timestamp']
-            error['count'] = error_reporting_count[error['project_id']]['count'] \
-                if error['project_id'] in error_reporting_count else ''
+            error["received_at"] = error["receive_timestamp"]
+            del error["receive_timestamp"]
+            error["count"] = (
+                error_reporting_count[error["project_id"]]["count"]
+                if error["project_id"] in error_reporting_count
+                else ""
+            )
 
-        return sorted(error_list, key=lambda i: i['received_at'], reverse=True)
+        return sorted(error_list, key=lambda i: i["received_at"], reverse=True)
     return make_response(jsonify([]), 204)
 
 
@@ -185,7 +204,7 @@ def get_from_dict(data_dict, map_list):
     return reduce(operator.getitem, map_list, data_dict)
 
 
-def security_notifications_get(page_size=50, cursor=None, page='Next'):  # noqa: E501
+def security_notifications_get(page_size=50, cursor=None, page="Next"):  # noqa: E501
     """Get a list of security notifications
 
     Get a list of security notifications # noqa: E501
@@ -200,23 +219,27 @@ def security_notifications_get(page_size=50, cursor=None, page='Next'):  # noqa:
     :rtype: List[SecurityNotificationResponse]
     """
 
-    if page == 'prev' and not cursor:
-        return make_response(jsonify('A cursor is required when requesting a previous page.'), 400)
+    if page == "prev" and not cursor:
+        return make_response(
+            jsonify("A cursor is required when requesting a previous page."), 400
+        )
 
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_SCC_NOTIFICATIONS_KIND)
 
     query_params = {
-        'limit': page_size,
-        'start_cursor': kms_encrypt_decrypt_cursor(cursor, 'decrypt') if cursor else None
+        "limit": page_size,
+        "start_cursor": kms_encrypt_decrypt_cursor(cursor, "decrypt")
+        if cursor
+        else None,
     }
 
     # When the previous page is requested and the latest cursor from the original query is used
     # to get results in reverse.
-    if page == 'prev':
-        query.order = ['updated', '__key__']
+    if page == "prev":
+        query.order = ["updated", "__key__"]
     else:
-        query.order = ['-updated', '-__key__']
+        query.order = ["-updated", "-__key__"]
 
     query_iter = query.fetch(**query_params)  # Execute query
 
@@ -225,37 +248,50 @@ def security_notifications_get(page_size=50, cursor=None, page='Next'):  # noqa:
 
     # Return results
     if db_data:
-        result_items = [{
-            'category': ap.get('category', ''),
-            'created_at': ap.get('created', ''),
-            'exception_instructions': get_from_dict(
-                ap, ['source', 'finding', 'sourceProperties', 'ExceptionInstructions']),
-            'explanation': get_from_dict(ap, ['source', 'finding', 'sourceProperties', 'Explanation']),
-            'external_uri': get_from_dict(ap, ['source', 'finding', 'externalUri']),
-            'id': ap.key.id_or_name,
-            'project_id': ap.get('project_id', ''),
-            'recommendation': ap.get('recommendation', ''),
-            'resource_name': get_from_dict(ap, ['source', 'finding', 'resourceName']),
-            'severity': get_from_dict(ap, ['source', 'finding', 'sourceProperties', 'SeverityLevel']),
-            'updated_at': ap.get('updated', ''),
-        } for ap in db_data]
+        result_items = [
+            {
+                "category": ap.get("category", ""),
+                "created_at": ap.get("created", ""),
+                "exception_instructions": get_from_dict(
+                    ap,
+                    ["source", "finding", "sourceProperties", "ExceptionInstructions"],
+                ),
+                "explanation": get_from_dict(
+                    ap, ["source", "finding", "sourceProperties", "Explanation"]
+                ),
+                "external_uri": get_from_dict(ap, ["source", "finding", "externalUri"]),
+                "id": ap.key.id_or_name,
+                "project_id": ap.get("project_id", ""),
+                "recommendation": ap.get("recommendation", ""),
+                "resource_name": get_from_dict(
+                    ap, ["source", "finding", "resourceName"]
+                ),
+                "severity": get_from_dict(ap, ["source", "finding", "severity"]),
+                "updated_at": ap.get("updated", ""),
+            }
+            for ap in db_data
+        ]
 
         # Sort results if previous page is requested because query sort order is ascending instead of descending
-        if page == 'prev':
-            results = sorted(result_items, key=lambda i: i['updated_at'], reverse=True)
+        if page == "prev":
+            results = sorted(result_items, key=lambda i: i["updated_at"], reverse=True)
             next_cursor = cursor  # Grab current cursor for next page
         else:
             results = result_items
-            next_cursor = query_iter.next_page_token.decode() if query_iter.next_page_token else None  # Grab new cursor for next page
+            next_cursor = (
+                query_iter.next_page_token.decode()
+                if query_iter.next_page_token
+                else None
+            )  # Grab new cursor for next page
     else:
         results = []
         next_cursor = cursor
 
     # Create response object
     response = {
-        'status': 'success',
-        'page_size': page_size,
-        'next_cursor': kms_encrypt_decrypt_cursor(next_cursor, 'encrypt'),
-        'results': results
+        "status": "success",
+        "page_size": page_size,
+        "next_cursor": kms_encrypt_decrypt_cursor(next_cursor, "encrypt"),
+        "results": results,
     }
     return response

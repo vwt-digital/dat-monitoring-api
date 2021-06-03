@@ -1,0 +1,32 @@
+ODH_PROJECT = "Google Cloud Platform project where subscription is"
+OPS_ISSUES = "Google Cloud Platform subscription to send formatted messages to"
+
+ISSUE_TITLES = {
+    "subscription_title1": {
+        "title": "Issue in project {project_id}",
+        "variables": {"project_id": ["projectId"],
+        "conditions": [
+            {
+              "variable": ["status"], 
+              "shouldBe": ["FAILURE", "TIMEOUT", "CANCELLED"]
+            }
+        ],
+        "category": "category1",
+    },
+    "subscription_title2": {
+        "title": "Fix bug in {project_id} {issue_type}",
+        "variables": {
+            "project_id": ["resource", "project_id"],
+            "issue_type": ["resource", "type"],
+        },
+        "category": "category2",
+    },
+    "subscription_title3": {
+        "title": "Update code in {repository}",
+        "variables": {
+            "repository": ["repository"],
+        },
+        "category": "category1",
+        "root": "repositories",
+    },
+}
