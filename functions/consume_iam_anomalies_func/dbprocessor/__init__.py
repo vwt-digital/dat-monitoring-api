@@ -10,6 +10,7 @@ class DBProcessor(object):
 
     def process(self, payload):
         batch = self.client.batch()
+        batch.begin()
 
         for anomaly in payload.get("iam_anomalies", []):
             # Create anomaly ID
