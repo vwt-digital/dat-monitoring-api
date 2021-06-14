@@ -9,6 +9,8 @@ class DBProcessor(object):
         self.client = datastore.Client()
 
     def process(self, payload):
+        batch = self.client.batch()
+
         for anomaly in payload.get("iam_anomalies", []):
             # Create anomaly ID
             anomaly_id = (
@@ -18,7 +20,6 @@ class DBProcessor(object):
 
             # Create entity object
             entity_to_create = {
-                "id": anomaly_id,
                 "project_id": anomaly["project_id"],
                 "role": anomaly["role"],
                 "member": anomaly["member"],
@@ -26,7 +27,7 @@ class DBProcessor(object):
             }
 
             # Create Datastore entity
-            entity_key = self.client.key(config.DB_SCC_NOTIFICATIONS_KIND, key)
+            entity_key = self.client.key(config.DB_IAM_ANOMALIES_KIND, key)
             entity = self.client.get(entity_key)
 
             if entity is None:
@@ -35,5 +36,6 @@ class DBProcessor(object):
 
             # Update status
             entity.update(entity_to_create)
+            batch.put(entity)
 
-            self.client.put(entity)
+        batch.commit()
