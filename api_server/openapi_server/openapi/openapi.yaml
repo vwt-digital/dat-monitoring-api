@@ -177,6 +177,74 @@ paths:
           description: Provided token doesn't have the required scope
       summary: Get count of project errors reportings in last x days
       x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
+  /iam-anomalies:
+    get:
+      description: Get a list of IAM anomalies
+      operationId: iam_anomalies_get
+      parameters:
+        - description: The numbers of items within a page.
+          explode: true
+          in: query
+          name: page_size
+          required: false
+          schema:
+            default: 50
+            maximum: 100
+            minimum: 1
+            type: integer
+          style: form
+        - description: The query cursor of the page
+          explode: true
+          in: query
+          name: cursor
+          required: false
+          schema:
+            type: string
+            format: byte
+          style: form
+        - description: Selector to get next or previous page based on the cursor
+          explode: true
+          in: query
+          name: page
+          required: false
+          schema:
+            default: next
+            enum:
+              - prev
+              - next
+            type: string
+          style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/IAMAnomaliesResponse'
+                type: array
+          description: Scheme with IAM anomalies
+        "204":
+          description: No content
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: No authorization token provided
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'https://opensource.zalando.com/problem/schema.yaml#/Problem'
+          description: Provided token doesn't have the required scope
+      summary: Get a list of IAM anomalies
+      x-openapi-router-controller: openapi_server.controllers.errorreporting_controller
   /security-notifications:
     get:
       description: Get a list of security notifications
@@ -434,10 +502,63 @@ components:
             $ref: '#/components/schemas/ErrorReport'
           type: array
       type: object
+    IAMAnomaly:
+      example:
+        created_at: "2020-01-01T12:00:00.000Z"
+        id: 9f85595a-906f-4d48-b3da-94920c586bf4
+        member: user:user_a@example.com
+        project_id: project_x
+        role: roles/editor
+        updated_at: "2020-01-01T12:05:00.000Z"
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        id:
+          type: string
+        member:
+          type: string
+        project_id:
+          type: string
+        role:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      type: object
+    IAMAnomaliesResponse:
+      example:
+        status: Success
+        page_size: 50
+        next_cursor: eee028e4-ef38-40fb-a92b-41c441660d2e
+        results:
+          - created_at: "2020-01-01T12:00:00.000Z"
+            id: 9f85595a-906f-4d48-b3da-94920c586bf4
+            member: user:user_a@example.com
+            project_id: project_x
+            role: roles/editor
+            updated_at: "2020-01-01T12:05:00.000Z"
+      properties:
+        status:
+          description: The request status.
+          type: string
+        page_size:
+          description: The current page size
+          format: int32
+          type: integer
+        next_cursor:
+          description: The next query cursor
+          type: string
+          format: byte
+        results:
+          items:
+            $ref: '#/components/schemas/IAMAnomaly'
+          type: array
+      type: object
     SecurityNotification:
       example:
         category: Security issue
-        created_at: 2020-01-01T12:00:00.000Z
+        created_at: "2020-01-01T12:00:00.000Z"
         exception_instructions: A security error occurred
         explanation: You did something wrong
         external_uri: https://external-uri.com/
@@ -446,7 +567,7 @@ components:
         recommendation: Try to fix it
         resource_name: resource_y
         severity: High
-        updated_at: 2020-01-01T12:05:00.000Z
+        updated_at: "2020-01-01T12:05:00.000Z"
       properties:
         category:
           type: string
@@ -480,7 +601,7 @@ components:
         next_cursor: eee028e4-ef38-40fb-a92b-41c441660d2e
         results:
           - category: Security issue
-            created_at: 2020-01-01T12:00:00.000Z
+            created_at: "2020-01-01T12:00:00.000Z"
             exception_instructions: A security error occurred
             explanation: You did something wrong
             external_uri: https://external-uri.com/
@@ -489,7 +610,7 @@ components:
             recommendation: Try to fix it
             resource_name: resource_y
             severity: High
-            updated_at: 2020-01-01T12:05:00.000Z
+            updated_at: "2020-01-01T12:05:00.000Z"
       properties:
         status:
           description: The request status.

@@ -204,6 +204,87 @@ def get_from_dict(data_dict, map_list):
     return reduce(operator.getitem, map_list, data_dict)
 
 
+def iam_anomalies_get(page_size=50, cursor=None, page="Next"):  # noqa: E501
+    """Get a list of IAM anomalies
+
+    Get a list of IAM anomalies # noqa: E501
+
+    :param page_size: The numbers of items within a page.
+    :type page_size: int
+    :param cursor: The query cursor of the page
+    :type cursor: str
+    :param page: Selector to get next or previous page based on the cursor
+    :type page: str
+
+    :rtype: List[IAMAnomaliesResponse]
+    """
+
+    if page == "prev" and not cursor:
+        return make_response(
+            jsonify("A cursor is required when requesting a previous page."), 400
+        )
+
+    db_client = datastore.Client()
+    query = db_client.query(kind=config.DB_IAM_ANOMALIES_KIND)
+
+    query_params = {
+        "limit": page_size,
+        "start_cursor": kms_encrypt_decrypt_cursor(cursor, "decrypt")
+        if cursor
+        else None,
+    }
+
+    # When the previous page is requested and the latest cursor from the original query is used
+    # to get results in reverse.
+    if page == "prev":
+        query.order = ["updated_at", "__key__"]
+    else:
+        query.order = ["-updated_at", "-__key__"]
+
+    query_iter = query.fetch(**query_params)  # Execute query
+
+    current_page = next(query_iter.pages)  # Setting current iterator page
+    db_data = list(current_page)  # Set page results list
+
+    # Return results
+    if db_data:
+        result_items = [
+            {
+                "created_at": anomaly.get("created_at", ""),
+                "id": anomaly.key.id_or_name,
+                "member": anomaly.get("member", ""),
+                "project_id": anomaly.get("project_id", ""),
+                "role": anomaly.get("role", ""),
+                "updated_at": anomaly.get("updated_at", ""),
+            }
+            for anomaly in db_data
+        ]
+
+        # Sort results if previous page is requested because query sort order is ascending instead of descending
+        if page == "prev":
+            results = sorted(result_items, key=lambda i: i["updated_at"], reverse=True)
+            next_cursor = cursor  # Grab current cursor for next page
+        else:
+            results = result_items
+            next_cursor = (
+                query_iter.next_page_token.decode()
+                if query_iter.next_page_token
+                else None
+            )  # Grab new cursor for next page
+    else:
+        results = []
+        next_cursor = cursor
+
+    # Create response object
+    response = {
+        "status": "success",
+        "page_size": page_size,
+        "next_cursor": kms_encrypt_decrypt_cursor(next_cursor, "encrypt"),
+        "results": results,
+    }
+    return response
+
+
 def security_notifications_get(page_size=50, cursor=None, page="Next"):  # noqa: E501
     """Get a list of security notifications
 
