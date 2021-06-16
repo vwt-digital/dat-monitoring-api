@@ -1,9 +1,9 @@
 import base64
-import datetime
 import itertools
 import logging
 import operator
 import os
+from datetime import datetime, timedelta
 from functools import reduce
 
 import config
@@ -141,9 +141,7 @@ def error_reports_counts_get(days=None, max_rows=None):  # noqa: E501
     if days < 1 or max_rows < 1:
         return make_response(jsonify("Parameters must be more than 0"), 403)
 
-    time_delta = (datetime.datetime.utcnow() - datetime.timedelta(days=days)).strftime(
-        "%Y-%m-%d"
-    )
+    time_delta = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%d")
 
     db_client = datastore.Client()
     query = db_client.query(kind=config.DB_ERROR_COUNT_KIND)
@@ -248,17 +246,23 @@ def iam_anomalies_get(page_size=50, cursor=None, page="Next"):  # noqa: E501
 
     # Return results
     if db_data:
-        result_items = [
-            {
-                "created_at": anomaly.get("created_at", ""),
-                "id": anomaly.key.id_or_name,
-                "member": anomaly.get("member", ""),
-                "project_id": anomaly.get("project_id", ""),
-                "role": anomaly.get("role", ""),
-                "updated_at": anomaly.get("updated_at", ""),
-            }
-            for anomaly in db_data
-        ]
+        result_items = []
+
+        for anomaly in db_data:
+            updated_at = datetime.strptime(anomaly["updated_at"], "%Y-%m-%dT%H:%M:%SZ")
+            updated_delta = datetime.utcnow() - timedelta(days=2)
+
+            result_items.append(
+                {
+                    "active": True if updated_at > updated_delta else False,
+                    "created_at": anomaly["created_at"],
+                    "id": anomaly.key.id_or_name,
+                    "member": anomaly["member"],
+                    "project_id": anomaly["project_id"],
+                    "role": anomaly["role"],
+                    "updated_at": anomaly["updated_at"],
+                }
+            )
 
         # Sort results if previous page is requested because query sort order is ascending instead of descending
         if page == "prev":
