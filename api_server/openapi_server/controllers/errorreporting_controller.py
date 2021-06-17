@@ -250,7 +250,7 @@ def iam_anomalies_get(page_size=50, cursor=None, page="Next"):  # noqa: E501
 
         for anomaly in db_data:
             updated_at = datetime.strptime(anomaly["updated_at"], "%Y-%m-%dT%H:%M:%SZ")
-            updated_delta = datetime.utcnow() - timedelta(days=2)
+            updated_delta = datetime.utcnow() - timedelta(days=1)
 
             result_items.append(
                 {
