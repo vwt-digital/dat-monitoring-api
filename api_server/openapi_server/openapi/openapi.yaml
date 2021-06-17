@@ -504,6 +504,7 @@ components:
       type: object
     IAMAnomaly:
       example:
+        active: true
         created_at: "2020-01-01T12:00:00.000Z"
         id: 9f85595a-906f-4d48-b3da-94920c586bf4
         member: user:user_a@example.com
@@ -511,6 +512,8 @@ components:
         role: roles/editor
         updated_at: "2020-01-01T12:05:00.000Z"
       properties:
+        active:
+          type: boolean
         created_at:
           format: date-time
           type: string
@@ -532,7 +535,8 @@ components:
         page_size: 50
         next_cursor: eee028e4-ef38-40fb-a92b-41c441660d2e
         results:
-          - created_at: "2020-01-01T12:00:00.000Z"
+          - active: true
+            created_at: "2020-01-01T12:00:00.000Z"
             id: 9f85595a-906f-4d48-b3da-94920c586bf4
             member: user:user_a@example.com
             project_id: project_x

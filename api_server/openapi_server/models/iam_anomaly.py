@@ -17,6 +17,7 @@ class IAMAnomaly(Model):
 
     def __init__(
         self,
+        active=None,
         created_at=None,
         id=None,
         member=None,
@@ -26,6 +27,8 @@ class IAMAnomaly(Model):
     ):  # noqa: E501
         """IAMAnomaly - a model defined in OpenAPI
 
+        :param active: The active of this IAMAnomaly.  # noqa: E501
+        :type active: bool
         :param created_at: The created_at of this IAMAnomaly.  # noqa: E501
         :type created_at: datetime
         :param id: The id of this IAMAnomaly.  # noqa: E501
@@ -40,6 +43,7 @@ class IAMAnomaly(Model):
         :type updated_at: datetime
         """
         self.openapi_types = {
+            "active": bool,
             "created_at": datetime,
             "id": str,
             "member": str,
@@ -49,6 +53,7 @@ class IAMAnomaly(Model):
         }
 
         self.attribute_map = {
+            "active": "active",
             "created_at": "created_at",
             "id": "id",
             "member": "member",
@@ -57,6 +62,7 @@ class IAMAnomaly(Model):
             "updated_at": "updated_at",
         }
 
+        self._active = active
         self._created_at = created_at
         self._id = id
         self._member = member
@@ -74,6 +80,27 @@ class IAMAnomaly(Model):
         :rtype: IAMAnomaly
         """
         return util.deserialize_model(dikt, cls)
+
+    @property
+    def active(self):
+        """Gets the active of this IAMAnomaly.
+
+
+        :return: The active of this IAMAnomaly.
+        :rtype: bool
+        """
+        return self._active
+
+    @active.setter
+    def active(self, active):
+        """Sets the active of this IAMAnomaly.
+
+
+        :param active: The active of this IAMAnomaly.
+        :type active: bool
+        """
+
+        self._active = active
 
     @property
     def created_at(self):
