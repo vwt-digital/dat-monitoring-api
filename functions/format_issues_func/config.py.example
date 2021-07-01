@@ -30,3 +30,4 @@ ISSUE_TITLES = {
         "root": "repositories",
     },
 }
+}
