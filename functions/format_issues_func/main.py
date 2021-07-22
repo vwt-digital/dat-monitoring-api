@@ -13,8 +13,8 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger("google.resumable_media._helpers").setLevel(level=logging.ERROR)
 
 
-def get_issue_title(title_type, payload):
-    issue_type = config.ISSUE_TITLES[title_type]
+def get_issue_data(subscription, payload, type):
+    issue_type = config.ISSUE_TITLES[subscription]
     variables = {}
     for key, value in issue_type["variables"].items():
         variable_value = get_variable_value(payload=payload, keys=value)
@@ -22,7 +22,7 @@ def get_issue_title(title_type, payload):
             # Makes sure that no invalid title can pass.
             return None
         variables[key] = variable_value
-    return issue_type["title"].format(**variables)
+    return issue_type[type].format(**variables)
 
 
 def check_conditions(title_type, payload):
@@ -30,8 +30,8 @@ def check_conditions(title_type, payload):
     if "conditions" in issue_type:
         for condition in issue_type["conditions"]:
             if (
-                get_variable_value(payload=payload, keys=condition["variable"])
-                not in condition["shouldBe"]
+                    get_variable_value(payload=payload, keys=condition["variable"])
+                    not in condition["shouldBe"]
             ):
                 return False
     return True
@@ -86,7 +86,13 @@ def topic_to_topic(request):
 
 
 def publish(subscription, payload):
-    title = get_issue_title(title_type=subscription, payload=payload)
+    title = get_issue_data(subscription=subscription, payload=payload, type="title")
+    comment = get_issue_data(subscription=subscription, payload=payload, type="comment") if "comment" in \
+                                                                                            config.ISSUE_TITLES[
+                                                                                                subscription] else None
+    description = get_issue_data(subscription=subscription, payload=payload, type="description") if "description" in \
+                                                                                                    config.ISSUE_TITLES[
+                                                                                                subscription] else None
 
     if not title:
         logging.exception(
@@ -105,7 +111,8 @@ def publish(subscription, payload):
             "issue": {
                 "title": title,
                 "category": config.ISSUE_TITLES[subscription].get("category", ""),
-                "payload": payload,
+                "payload": description if description else payload,
+                "comment": comment
             },
         },
         indent=2,
@@ -113,4 +120,6 @@ def publish(subscription, payload):
 
     # Publish to ops-issues here
     topic_path = publisher.topic_path(config.ODH_PROJECT, config.OPS_ISSUES)
-    publisher.publish(topic_path, formatted)
+    published = publisher.publish(topic_path, formatted)
+
+    logging.info(f"Published message with id {published.result()}")
