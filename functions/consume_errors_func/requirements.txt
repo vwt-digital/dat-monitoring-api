@@ -39,19 +39,19 @@ packaging==20.9
     # via google-api-core
 proto-plus==1.18.1
     # via google-cloud-datastore
-protobuf==3.17.2
+protobuf==3.18.3
     # via
     #   google-api-core
     #   googleapis-common-protos
     #   proto-plus
 py==1.10.0
     # via retry
-pyasn1-modules==0.2.8
-    # via google-auth
 pyasn1==0.4.8
     # via
     #   pyasn1-modules
     #   rsa
+pyasn1-modules==0.2.8
+    # via google-auth
 pyparsing==2.4.7
     # via packaging
 pytz==2021.1
@@ -70,7 +70,6 @@ six==1.16.0
     #   google-auth
     #   google-cloud-core
     #   grpcio
-    #   protobuf
 typing-extensions==3.10.0.0
     # via
     #   libcst
