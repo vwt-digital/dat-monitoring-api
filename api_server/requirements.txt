@@ -20,6 +20,12 @@ clickclick==20.10.2
     # via connexion
 connexion==2.7.0
     # via -r requirements.in
+flask==1.1.2
+    # via
+    #   -r requirements.in
+    #   connexion
+    #   flask-cors
+    #   flask-sslify
 flask-auditlog==1.0
     # via -r requirements.in
 flask-cors==3.0.10
@@ -28,12 +34,6 @@ flask-no-cache==1.0
     # via -r requirements.in
 flask-sslify==0.1.5
     # via -r requirements.in
-flask==1.1.2
-    # via
-    #   -r requirements.in
-    #   connexion
-    #   flask-cors
-    #   flask-sslify
 google-api-core[grpc]==1.29.0
     # via
     #   google-cloud-core
@@ -104,17 +104,17 @@ proto-plus==1.18.1
     #   google-cloud-datastore
     #   google-cloud-kms
     #   google-cloud-secret-manager
-protobuf==3.17.2
+protobuf==3.18.3
     # via
     #   google-api-core
     #   googleapis-common-protos
     #   proto-plus
-pyasn1-modules==0.2.8
-    # via google-auth
 pyasn1==0.4.8
     # via
     #   pyasn1-modules
     #   rsa
+pyasn1-modules==0.2.8
+    # via google-auth
 pyparsing==2.4.7
     # via packaging
 pyrsistent==0.17.3
@@ -144,7 +144,6 @@ six==1.16.0
     #   jsonschema
     #   openapi-schema-validator
     #   openapi-spec-validator
-    #   protobuf
 swagger-ui-bundle==0.0.8
     # via -r requirements.in
 typing-extensions==3.10.0.0
