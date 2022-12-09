@@ -8,7 +8,7 @@ attrs==21.2.0
     # via jsonschema
 cachetools==4.2.2
     # via google-auth
-certifi==2021.5.30
+certifi==2022.12.7
     # via requests
 chardet==4.0.0
     # via requests
@@ -20,6 +20,12 @@ clickclick==20.10.2
     # via connexion
 connexion==2.7.0
     # via -r requirements.in
+flask==1.1.2
+    # via
+    #   -r requirements.in
+    #   connexion
+    #   flask-cors
+    #   flask-sslify
 flask-auditlog==1.0
     # via -r requirements.in
 flask-cors==3.0.10
@@ -28,12 +34,6 @@ flask-no-cache==1.0
     # via -r requirements.in
 flask-sslify==0.1.5
     # via -r requirements.in
-flask==1.1.2
-    # via
-    #   -r requirements.in
-    #   connexion
-    #   flask-cors
-    #   flask-sslify
 google-api-core[grpc]==1.29.0
     # via
     #   google-cloud-core
@@ -109,12 +109,12 @@ protobuf==3.17.2
     #   google-api-core
     #   googleapis-common-protos
     #   proto-plus
-pyasn1-modules==0.2.8
-    # via google-auth
 pyasn1==0.4.8
     # via
     #   pyasn1-modules
     #   rsa
+pyasn1-modules==0.2.8
+    # via google-auth
 pyparsing==2.4.7
     # via packaging
 pyrsistent==0.17.3
